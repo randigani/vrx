@@ -341,10 +341,10 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <include>
+    <!-- <include>
       <pose> 0 0 0.2 0 0 0 </pose>
       <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/sydney_regatta</uri>
-    </include>
+    </include> -->
 
     <include>
       <name>Coast Waves</name>
@@ -691,7 +691,7 @@
       </plugin>
     </include>    
 
-    <!-- The posts for securing the WAM-V -->
+    <!-- The posts for securing the WAM-V
     <include>
       <name>post_0</name>
       <pose>-535.916809 154.362869 0.675884 -0.17182 0.030464 -0.005286</pose>
@@ -706,16 +706,16 @@
       <name>post_2</name>
       <pose>-544.832825 156.671951 0.499025 -0.162625 0 0 </pose>
       <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/post</uri>
-    </include>
+    </include> -->
 
     <!-- Antenna for communication with the WAM-V -->
-    <include>
+    <!-- <include>
       <pose>-531.063721 147.668579 1.59471 -0.068142 0 -0.1</pose>
       <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/antenna</uri>
-    </include>
+    </include> -->
 
     <!-- ground station tents -->
-    <include>
+    <!-- <include>
       <name>ground_station_0</name>
       <pose>-540.796448 146.493744 1.671421 -0.00834 0.01824 1.301726</pose>
       <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/ground_station</uri>
@@ -729,7 +729,7 @@
       <name>ground_station_2</name>
       <pose>-534.550537 144.910400 1.720474 -0.004994 0.020798 1.301492</pose>
       <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/ground_station</uri>
-    </include>
+    </include> -->
 
     <!-- The projectile for the ball shooter -->
     <include>
