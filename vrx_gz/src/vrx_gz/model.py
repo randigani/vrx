@@ -263,12 +263,26 @@ class Model:
             self.urdf = os.path.join(get_package_share_directory('wamv_gazebo'),
                                      'urdf', 'wamv_gazebo.urdf.xacro')
         command = self.xacro_cmd()
+        print(f"DEBUG: Running command: {' '.join(command)}")
         process = subprocess.Popen(command,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
 
         # evaluate error output for the xacro process
         stderr = process.communicate()[1]
+
+        # # change to this if setting imu_enbaled to true
+        # # remember to set vrx_sensors_enabled to false above
+        # stdout, stderr = process.communicate()
+        # print(f"DEBUG: stdout length: {len(stdout)}")
+        # print(f"DEBUG: stderr length: {len(stderr)}")
+        # print(f"DEBUG: Return code: {process.returncode}")
+        # if len(stdout) == 0:
+        #     print("ERROR: stdout is empty!")
+        #     err_output = codecs.getdecoder('unicode_escape')(stderr)[0]
+        #     print(f"STDERR OUTPUT:\n{err_output}")
+        #     raise RuntimeError("gz sdf command produced no output")
+        
         err_output = codecs.getdecoder('unicode_escape')(stderr)[0]
         for line in err_output.splitlines():
             if line.find('undefined local') > 0:
