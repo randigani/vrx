@@ -360,9 +360,11 @@
 
     <!-- First light buoy -->
     <include>
-      <name>robotx_light_buoy_rgb</name>
+      <!-- <name>robotx_light_buoy_rgb</name> -->
+      <name>robotx_light_buoy_random</name>
       <pose>-528 186 0.32 0 0 0</pose>
-      <uri>robotx_light_buoy_rgb</uri>
+      <!-- <uri>robotx_light_buoy_rgb</uri> -->
+      <uri>robotx_light_buoy_random</uri>
 
       <plugin name="vrx::PolyhedraBuoyancyDrag"
               filename="libPolyhedraBuoyancyDrag.so">
