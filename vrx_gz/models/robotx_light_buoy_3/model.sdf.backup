@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version="1.6">
-  <model name="robotx_light_buoy_9">
+  <model name="robotx_light_buoy_3">
     <pose>0 0 -0.0762 0 0 0</pose>
     <link name="base_link">
       <inertial>
@@ -48,13 +48,14 @@
             <name>Gazebo/Black</name>
           </script>
         </material>
-        <plugin name="vrx::FieldLightBuoyPlugin" filename="libFieldLightBuoyPlugin.so">
-          <environment>clustered_distrib_env</environment>
-          <update_interval>12.0</update_interval>
+        <plugin name="vrx::RandomLightBuoyPlugin" filename="libRandomLightBuoyPlugin.so">
+          <color_1>blue</color_1>
+          <color_2>green</color_2>
+          <color_3>yellow</color_3>
           <visuals>
-            <visual>robotx_light_buoy_9::base_link::panel_1</visual>
-            <visual>robotx_light_buoy_9::base_link::panel_2</visual>
-            <visual>robotx_light_buoy_9::base_link::panel_3</visual>
+            <visual>robotx_light_buoy_3::base_link::panel_1</visual>
+            <visual>robotx_light_buoy_3::base_link::panel_2</visual>
+            <visual>robotx_light_buoy_3::base_link::panel_3</visual>
           </visuals>
         </plugin>
       </visual>

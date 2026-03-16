@@ -48,10 +48,9 @@
             <name>Gazebo/Black</name>
           </script>
         </material>
-        <plugin name="vrx::RandomLightBuoyPlugin" filename="libRandomLightBuoyPlugin.so">
-          <color_1>yellow</color_1>
-          <color_2>blue</color_2>
-          <color_3>red</color_3>
+        <plugin name="vrx::FieldLightBuoyPlugin" filename="libFieldLightBuoyPlugin.so">
+          <environment>clustered_distrib_env</environment>
+          <update_interval>12.0</update_interval>
           <visuals>
             <visual>robotx_light_buoy_7::base_link::panel_1</visual>
             <visual>robotx_light_buoy_7::base_link::panel_2</visual>
