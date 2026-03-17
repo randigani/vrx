@@ -85,15 +85,24 @@ static bool s_publisherCreated = false;
 
 struct BuoyCachedState
 {
+  uint64_t entityId;
   double x;
   double y;
   double fieldValue;
   std::string color;
 };
-static std::map<std::string, BuoyCachedState> s_buoyCache;
+static std::map<uint64_t, BuoyCachedState> s_buoyCache;
 
 static int s_totalBuoyInstances = 0;
 static int s_buoysEvaluatedThisCycle = 0;
+
+static gz::transport::Node::Publisher s_colorPub;
+static bool s_isComputeOwner = false;
+static bool s_ownershipDetermined = false;
+
+static std::mutex s_rxColorMutex;
+static std::map<uint64_t, std::string> s_receivedColors;
+static bool s_subscribedToColors = false;
 
 // ============================================================================
 
@@ -111,7 +120,9 @@ class FieldLightBuoyPlugin::Implementation
   public: bool GetBuoyPosition(double &_x, double &_y);
   public: static void UpdateSharedGaussianProcesses(double _dt);
   public: static void PublishGPState(double _simTime);
+  public: static void PublishBuoyColors();
   public: static double SharedSampleGaussian(double _mean, double _stddev);
+  public: static void OnBuoyColors(const gz::msgs::StringMsg &_msg);
 
   public: static std::map<std::string, gz::msgs::Color> kColors;
   public: std::vector<std::string> visualNames;
@@ -312,10 +323,25 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
       s_lastGPUpdateTimeSec = -1.0;
 
       // Create Gazebo transport publisher (once)
-      if (!s_publisherCreated && !s_sharedGPs.empty()){
-        s_gpPub = s_transportNode.Advertise<gz::msgs::StringMsg>("/gp_field_state");
-        s_publisherCreated = true;
-        gzmsg << "GP field state publisher created on /gp_field_state" << std::endl;
+      if (!s_ownershipDetermined && !s_sharedGPs.empty()){
+        std::vector<gz::transport::MessagePublisher> pubs;
+        s_transportNode.TopicInfo("/buoy_visual_colors", pubs);
+
+        if (pubs.empty()){
+          s_gpPub = s_transportNode.Advertise<gz::msgs::StringMsg>("/gp_field_state");
+          s_colorPub = s_transportNode.Advertise<gz::msgs::StringMsg>("/buoy_visual_colors");
+
+          s_publisherCreated = true;
+          s_isComputeOwner = true;
+
+          gzmsg << "COMPUTE OWNER" << std::endl;
+        } 
+        else {
+          s_isComputeOwner = false;
+          gzmsg << "CONSUMER (GUI)" << std::endl;
+        }
+
+        s_ownershipDetermined = true;
       }
     }
   }
@@ -389,6 +415,25 @@ void FieldLightBuoyPlugin::Implementation::PublishGPState(double _simTime){
 
   msg.set_data(ss.str());
   s_gpPub.Publish(msg);
+}
+
+// ============================================================================
+void FieldLightBuoyPlugin::Implementation::PublishBuoyColors(){
+  if (!s_publisherCreated)
+    return;
+
+  gz::msgs::StringMsg msg;
+  std::ostringstream ss;
+
+  bool first = true;
+  for (const auto &pair : s_buoyCache){
+    if (!first) ss << ",";
+    ss << pair.first << ":" << pair.second.color;
+    first = false;
+  }
+
+  msg.set_data(ss.str());
+  s_colorPub.Publish(msg);
 }
 
 // ============================================================================
@@ -490,6 +535,31 @@ bool FieldLightBuoyPlugin::Implementation::GetBuoyPosition(double &_x, double &_
 }
 
 // ============================================================================
+void FieldLightBuoyPlugin::Implementation::OnBuoyColors(
+  const gz::msgs::StringMsg &_msg)
+{
+  std::lock_guard<std::mutex> lock(s_rxColorMutex);
+  s_receivedColors.clear();
+
+  const std::string &data = _msg.data();
+  if (data.empty()) return;
+
+  std::istringstream ss(data);
+  std::string pair;
+  while (std::getline(ss, pair, ','))
+  {
+    auto colonPos = pair.find(':');
+    if (colonPos == std::string::npos) continue;
+    try {
+      uint64_t eid = std::stoull(pair.substr(0, colonPos));
+      s_receivedColors[eid] = pair.substr(colonPos + 1);
+    } catch (...) {
+      continue;
+    }
+  }
+}
+
+// ============================================================================
 void FieldLightBuoyPlugin::Implementation::Update(){
   if (!this->scene)
     this->scene = rendering::sceneFromFirstRenderEngine();
@@ -521,18 +591,12 @@ void FieldLightBuoyPlugin::Implementation::Update(){
         nodes.push_back(n->ChildByIndex(i));
     }
 
-    if (!visual){
-      gzerr << "Unable to find visual for entity " << this->entity << std::endl;
-      return;
-    }
+    if (!visual) return;
 
     rendering::VisualPtr linkVisual =
       std::dynamic_pointer_cast<rendering::Visual>(visual->Parent());
 
-    if (!linkVisual){
-      gzerr << "Unable to find parent link for visual " << this->entity << std::endl;
-      return;
-    }
+    if (!linkVisual) return;
 
     for (const auto &name : this->visualNames){
       rendering::NodePtr node = linkVisual->ChildByName(name);
@@ -553,6 +617,37 @@ void FieldLightBuoyPlugin::Implementation::Update(){
         gzerr << "Unable to find visual: " << name << std::endl;
       }
     }
+  }
+
+  if (!s_isComputeOwner)
+  {
+    if (!s_subscribedToColors){
+      s_transportNode.Subscribe("/buoy_visual_colors", &OnBuoyColors);
+      s_subscribedToColors = true;
+    }
+
+    std::string colorName = "off";
+    {
+      std::lock_guard<std::mutex> rxLock(s_rxColorMutex);
+      auto it = s_receivedColors.find(static_cast<uint64_t>(this->entity));
+      if (it != s_receivedColors.end())
+        colorName = it->second;
+    }
+
+    auto color = this->kColors[colorName];
+    for (auto vis : this->visuals){
+      math::Color gc(color.r(), color.g(), color.b(), color.a());
+      auto mat = vis->Material();
+      if (!mat){
+        auto newMat = this->scene->CreateMaterial();
+        vis->SetMaterial(newMat);
+        mat = vis->Material();
+        this->scene->DestroyMaterial(newMat);
+      }
+      mat->SetAmbient(gc);
+      mat->SetDiffuse(gc);
+    }
+    return;
   }
 
   std::lock_guard<std::mutex> lock(this->mutex);
@@ -604,13 +699,13 @@ void FieldLightBuoyPlugin::Implementation::Update(){
   if (this->fieldType == "gaussian_process")
   {
     std::lock_guard<std::mutex> gpLock(s_gpMutex);
-    std::ostringstream keyss;
-    keyss << std::fixed << std::setprecision(0) << buoyX << "," << buoyY;
-    s_buoyCache[keyss.str()] = {buoyX, buoyY, fieldValue, colorName};
+    uint64_t eid = static_cast<uint64_t>(this->entity);
+    s_buoyCache[eid] = {eid, buoyX, buoyY, fieldValue, colorName};
 
     s_buoysEvaluatedThisCycle++;
     if (s_buoysEvaluatedThisCycle >= s_totalBuoyInstances && s_totalBuoyInstances > 0){
       PublishGPState(simTimeSec);
+      PublishBuoyColors();
     }
   }
 
@@ -672,7 +767,7 @@ void FieldLightBuoyPlugin::Configure(
 
   this->dataPtr->InitializeField(this->dataPtr->environment);
 
-  if (this->dataPtr->fieldType == "gaussian_process"){
+  if (this->dataPtr->fieldType == "gaussian_process" && s_isComputeOwner){
     std::lock_guard<std::mutex> lock(s_gpMutex);
     s_totalBuoyInstances++;
     gzmsg << "FieldLightBuoy instance #" << s_totalBuoyInstances
