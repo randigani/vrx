@@ -190,7 +190,7 @@ bool FieldLightBuoyPlugin::Implementation::ParseSDF(sdf::ElementPtr _sdf){
 
   this->environment = _sdf->GetElement("environment")->Get<std::string>();
 
-  this->updateInterval = 12.0;
+  this->updateInterval = 60.0;
   if (_sdf->HasElement("update_interval")){
     this->updateInterval = _sdf->GetElement("update_interval")->Get<double>();
   }
@@ -243,7 +243,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp1.variance = 0.4;
         gp1.meanValue = 0.5;
         gp1.noiseStdDev = 0.05;
-        gp1.meanReversionRate = 0.02;
+        gp1.meanReversionRate = 0.000624;
         gp1.diffusionCoeff = 0.15;
         gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
         s_sharedGPs.push_back(gp1);
@@ -256,7 +256,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.variance = 0.4;
         gp2.meanValue = 0.5;
         gp2.noiseStdDev = 0.05;
-        gp2.meanReversionRate = 0.015;
+        gp2.meanReversionRate = 0.000624;
         gp2.diffusionCoeff = 0.18;
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
@@ -273,7 +273,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp1.variance = 0.36;
         gp1.meanValue = 0.6;
         gp1.noiseStdDev = 0.08;
-        gp1.meanReversionRate = 0.025;
+        gp1.meanReversionRate = 0.001224;
         gp1.diffusionCoeff = 0.20;
         gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
         s_sharedGPs.push_back(gp1);
@@ -286,7 +286,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.variance = 0.36;
         gp2.meanValue = 0.6;
         gp2.noiseStdDev = 0.08;
-        gp2.meanReversionRate = 0.020;
+        gp2.meanReversionRate = 0.001224;
         gp2.diffusionCoeff = 0.22;
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
@@ -303,7 +303,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp1.variance = 0.25;
         gp1.meanValue = 0.6;
         gp1.noiseStdDev = 0.05;
-        gp1.meanReversionRate = 0.015;
+        gp1.meanReversionRate = 0.000623;
         gp1.diffusionCoeff = 0.12;
         gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
         s_sharedGPs.push_back(gp1);
