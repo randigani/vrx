@@ -23,9 +23,33 @@ import vrx_gz.launch
 from vrx_gz.model import Model
 
 
+WEATHERS = ('clear', 'fog', 'night')
+ENVS = ('clustered', 'boundary', 'uniform')
+
+
+def compose_world(env, weather, world_fallback):
+    """Build a world name from env+weather, or fall back to the raw world arg.
+
+    env='' selects the fallback (single-source override via `world:=...`).
+    weather='clear' yields the base env SDF (no suffix).
+    """
+    if not env:
+        return world_fallback
+    if env not in ENVS:
+        raise ValueError(f"env must be one of {ENVS}, got {env!r}")
+    if weather not in WEATHERS:
+        raise ValueError(f"weather must be one of {WEATHERS}, got {weather!r}")
+    suffix = '' if weather == 'clear' else f'_{weather}'
+    return f'{env}_distrib_env{suffix}'
+
+
 def launch(context, *args, **kwargs):
     config_file = LaunchConfiguration('config_file').perform(context)
-    world_name = LaunchConfiguration('world').perform(context)
+    world_arg = LaunchConfiguration('world').perform(context)
+    env = LaunchConfiguration('env').perform(context).strip().lower()
+    weather = LaunchConfiguration('weather').perform(context).strip().lower()
+    world_name = compose_world(env, weather, world_arg)
+    night = (weather == 'night')
     sim_mode = LaunchConfiguration('sim_mode').perform(context)
     bridge_competition_topics = LaunchConfiguration(
         'bridge_competition_topics').perform(context).lower() == 'true'
@@ -50,6 +74,9 @@ def launch(context, *args, **kwargs):
           m.set_urdf(robot_urdf)
       models.append(m)
 
+    for m in models:
+        m.set_night(night)
+
     world_name, ext = os.path.splitext(world_name)
     launch_processes.extend(vrx_gz.launch.simulation(world_name, headless, 
                                                      gz_paused, extra_gz_args))
@@ -68,7 +95,18 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'world',
             default_value='sydney_regatta',
-            description='Name of world'),
+            description='Name of world. Used only when `env` is empty; '
+                        'otherwise the world is composed from env+weather.'),
+        DeclareLaunchArgument(
+            'env',
+            default_value='clustered',
+            description='Distribution env: "clustered", "boundary", "uniform", '
+                        'or empty to use `world` directly.'),
+        DeclareLaunchArgument(
+            'weather',
+            default_value='clear',
+            description='Weather variant: "clear", "fog", or "night". '
+                        '"night" also enables WAM-V deck/camera lights.'),
         DeclareLaunchArgument(
             'sim_mode',
             default_value='full',

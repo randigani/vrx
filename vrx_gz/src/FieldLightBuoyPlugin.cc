@@ -78,6 +78,7 @@ static std::vector<GaussianProcessParams> s_sharedGPs;
 static std::mt19937 s_sharedRng;
 static std::normal_distribution<double> s_sharedNormalDist{0.0, 1.0};
 static double s_lastGPUpdateTimeSec = -1.0;
+static double s_lastColorPubTimeSec = -1.0;
 
 static gz::transport::Node s_transportNode;
 static gz::transport::Node::Publisher s_gpPub;
@@ -321,6 +322,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
       s_gpEnvironment = _environment;
       s_gpInitialized = true;
       s_lastGPUpdateTimeSec = -1.0;
+      s_lastColorPubTimeSec = -1.0;
 
       // Create Gazebo transport publisher (once)
       if (!s_ownershipDetermined && !s_sharedGPs.empty()){
@@ -652,6 +654,20 @@ void FieldLightBuoyPlugin::Implementation::Update(){
 
   std::lock_guard<std::mutex> lock(this->mutex);
 
+  // Heartbeat: republish cached colors at ~5 Hz so late-attaching
+  // subscribers (GUI, Python viz) catch up within a frame instead of
+  // waiting a full updateInterval (480 s) for the next GP cycle.
+  {
+    std::lock_guard<std::mutex> gpLock(s_gpMutex);
+    double nowSec = this->currentTime.count();
+    if (!s_buoyCache.empty() &&
+        (s_lastColorPubTimeSec < 0.0 || nowSec - s_lastColorPubTimeSec >= 0.2)){
+      PublishBuoyColors();
+      PublishGPState(nowSec);
+      s_lastColorPubTimeSec = nowSec;
+    }
+  }
+
   if (this->currentTime < this->nextUpdateTime)
     return;
 
@@ -679,7 +695,6 @@ void FieldLightBuoyPlugin::Implementation::Update(){
       }
 
       s_lastGPUpdateTimeSec = simTimeSec;
-      s_buoysEvaluatedThisCycle = 0;  // Reset counter for new cycle
     }
   }
 
@@ -706,6 +721,7 @@ void FieldLightBuoyPlugin::Implementation::Update(){
     if (s_buoysEvaluatedThisCycle >= s_totalBuoyInstances && s_totalBuoyInstances > 0){
       PublishGPState(simTimeSec);
       PublishBuoyColors();
+      s_buoysEvaluatedThisCycle = 0;
     }
   }
 

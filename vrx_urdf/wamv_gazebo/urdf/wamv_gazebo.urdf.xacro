@@ -11,6 +11,7 @@
   <xacro:arg name="ground_truth_enabled" default="true" />
   <xacro:arg name="vrx_sensors_enabled" default="false" />
   <xacro:arg name="pinger_enabled" default="false" />
+  <xacro:arg name="night" default="false" />
   <xacro:arg name="ball_shooter_enabled" default="false" />
   <xacro:arg name="thruster_namespace" default="thrusters/"/>
   <xacro:arg name="camera_namespace" default="cameras/"/>
@@ -183,5 +184,23 @@
     </xacro:if>
 
   </xacro:unless>
+
+  <xacro:if value="$(arg night)">
+    <gazebo reference="$(arg namespace)/front_camera_link">
+      <light name="front_camera_glare_light" type="point">
+        <pose>5 0 0.7 0 0 0</pose>
+        <diffuse>1.0 0.95 0.8 1</diffuse>
+        <specular>1.0 0.95 0.8 1</specular>
+        <intensity>2000</intensity>
+        <attenuation>
+          <range>200</range>
+          <constant>0.1</constant>
+          <linear>0.005</linear>
+          <quadratic>0.0001</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
+    </gazebo>
+  </xacro:if>
 
 </robot>
