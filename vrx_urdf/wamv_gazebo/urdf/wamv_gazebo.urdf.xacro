@@ -38,6 +38,7 @@
 
   <!-- === The WAM-V platform === -->
   <xacro:include filename="$(find wamv_gazebo)/urdf/wamv_gazebo.xacro"/>
+  <xacro:include filename="$(find wamv_gazebo)/urdf/components/wamv_rgbd_camera.xacro"/>
 
   <!-- === Batteries === -->
   <xacro:include filename="$(find wamv_description)/urdf/battery.xacro"/>
@@ -161,7 +162,11 @@
 
       <!-- Add a stereo camera pair -->
       <xacro:wamv_camera name="front_left_camera" y="0.1" x="0.75" P="${radians(15)}" />
+      <!-- <xacro:wamv_rgbd_camera name="front_left_camera" y="0.1" x="0.75" P="${radians(15)}" /> -->
       <xacro:wamv_camera name="front_right_camera" y="-0.1" x="0.75" P="${radians(15)}" />
+
+      <!-- Starboard RGBD camera (feeds FogCameraNode depth-weighted fog) -->
+      <xacro:wamv_rgbd_camera name="right_rgbd_camera" y="-0.3" x="0.75" P="${radians(15)}" />
 
       <!-- Add a camera facing right -->
       <xacro:wamv_camera name="middle_right_camera" y="-0.45" P="${radians(15)}" Y="${radians(-90)}" post_Y="${radians(-90)}" />

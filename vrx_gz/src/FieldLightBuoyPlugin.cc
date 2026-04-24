@@ -770,9 +770,20 @@ void FieldLightBuoyPlugin::Configure(
   auto worldEntity = _ecm.EntityByComponents(sim::components::World());
   auto worldNameComp = _ecm.Component<sim::components::Name>(worldEntity);
   if (worldNameComp){
-    this->dataPtr->environment = worldNameComp->Data();
+    std::string worldName = worldNameComp->Data();
+    // Strip weather suffix so clustered/boundary/uniform_distrib_env_{fog,night}
+    // all map to the same GP parameters as the base env.
+    for (const std::string &suffix : {"_fog", "_night"}){
+      if (worldName.size() > suffix.size() &&
+          worldName.compare(worldName.size() - suffix.size(),
+                            suffix.size(), suffix) == 0){
+        worldName.erase(worldName.size() - suffix.size());
+        break;
+      }
+    }
+    this->dataPtr->environment = worldName;
     gzmsg << "FieldLightBuoyPlugin: auto-detected environment from world name: "
-          << this->dataPtr->environment << std::endl;
+          << worldNameComp->Data() << " -> " << this->dataPtr->environment << std::endl;
   }
   
   else{
