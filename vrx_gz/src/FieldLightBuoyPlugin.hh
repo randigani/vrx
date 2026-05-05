@@ -37,6 +37,9 @@ namespace vrx
   /// SDF Parameters:
   /// <environment>: Environment type (required)
   /// <update_interval>: Seconds between color updates (default: 12.0)
+  /// <field_seed>: Optional uint32 seed for the OU process RNG. If not set, 
+  //                launches will have different random field evolutions but 
+  //                all buoys within a launch will share the same evolution.
   /// <visuals>: The collection of visuals that change in color. It accepts N
   ///            elements of <visual> elements.
   ///  

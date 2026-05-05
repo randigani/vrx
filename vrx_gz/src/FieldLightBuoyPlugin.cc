@@ -21,6 +21,7 @@
 #include <array>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <cmath>
 #include <iomanip>
 #include <map>
@@ -156,6 +157,10 @@ class FieldLightBuoyPlugin::Implementation
   // Per-instance RNG for observation noise only
   public: std::mt19937 rng;
   public: std::normal_distribution<double> normalDist{0.0, 1.0};
+
+  // Optional seed for reproducible field evolution across launches. If not set, each launch will have a different random field evolution but all buoys within a launch will share the same field evolution.
+  public: bool fieldSeedProvided{false};
+  public: uint32_t fieldSeed{0};
 };
 
 std::map<std::string, gz::msgs::Color>
@@ -196,6 +201,25 @@ bool FieldLightBuoyPlugin::Implementation::ParseSDF(sdf::ElementPtr _sdf){
     this->updateInterval = _sdf->GetElement("update_interval")->Get<double>();
   }
 
+  // Optional <field_seed> for reproducible OU realisation. Falls back to
+  // FIELD_SEED env var so launches can override without editing world SDFs.
+  if (_sdf->HasElement("field_seed")){
+    this->fieldSeed = _sdf->GetElement("field_seed")->Get<uint32_t>();
+    this->fieldSeedProvided = true;
+    gzmsg << "FieldLightBuoyPlugin: using SDF field_seed=" << this->fieldSeed << std::endl;
+  }
+  else if (const char *envSeed = std::getenv("FIELD_SEED")){
+    try {
+      this->fieldSeed = static_cast<uint32_t>(std::stoul(envSeed));
+      this->fieldSeedProvided = true;
+      gzmsg << "FieldLightBuoyPlugin: using FIELD_SEED env var=" << this->fieldSeed << std::endl;
+    }
+    catch (const std::exception &e){
+      gzwarn << "FieldLightBuoyPlugin: FIELD_SEED env var '" << envSeed
+             << "' is not a valid uint32 (" << e.what() << "); falling back to random_device" << std::endl;
+    }
+  }
+
   if (!_sdf->HasElement("visuals")){
     gzerr << "<visuals> missing" << std::endl;
     return false;
@@ -225,14 +249,28 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
   const std::string &_environment)
 {
   std::random_device rd;
-  this->rng = std::mt19937(rd());
+  // this->rng = std::mt19937(rd());
+  if (this->fieldSeedProvided){
+    uint32_t instanceSeed = this->fieldSeed ^ static_cast<uint32_t>(this->entity);
+    this->rng = std::mt19937(instanceSeed);
+  }
+  else{
+    this->rng = std::mt19937(rd());
+  }
 
   {
     std::lock_guard<std::mutex> lock(s_gpMutex);
 
     if (!s_gpInitialized || s_gpEnvironment != _environment){
       s_sharedGPs.clear();
-      s_sharedRng = std::mt19937(rd());  // Random seed
+      // s_sharedRng = std::mt19937(rd());  // Random seed
+      if (this->fieldSeedProvided){
+        s_sharedRng = std::mt19937(this->fieldSeed);
+        gzmsg << "FieldLightBuoyPlugin: shared GP RNG seeded with field_seed=" << this->fieldSeed << std::endl;
+      }
+      else{
+        s_sharedRng = std::mt19937(rd());
+      }
 
       if (_environment == "uniform_distrib_env"){
         // Left centroid (-496, 231), Right centroid (-368, 231)
