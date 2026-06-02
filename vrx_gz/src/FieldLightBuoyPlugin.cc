@@ -66,6 +66,10 @@ struct GaussianProcessParams
   double meanReversionRate;       // theta: speed of reversion to mean
   double diffusionCoeff;          // sigma_diff: random fluctuation strength
 
+  // If true, this component never evolves: its amplitude (and the colour of the buoys it
+  // dominates) stays constant.
+  bool frozen = false;
+
   // Current field state (for temporal correlation)
   double currentAmplitude;
 };
@@ -273,34 +277,42 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
       }
 
       if (_environment == "uniform_distrib_env"){
-        // Left centroid (-496, 231), Right centroid (-368, 231)
-        GaussianProcessParams gp1;
-        gp1.centerX = -496.0;
+        // ====================================================================================
+        // HETEROGENEOUS-LAMBDA 
+        // Scenario A: CHANGING field over the LEFT buoys (1,2,4,7), STATIC field over the RIGHT buoys
+        // (3,5,6,8,9). Length scales shrunk 80 -> 35 so each component dominates its region.
+        // SCENARIO B (both change, ~500/800s): set gp2.frozen=false and use for ex:
+        // gp1.meanReversionRate=0.0015 (fast), gp2.meanReversionRate=0.00125 (slow).
+        // ====================================================================================
+        GaussianProcessParams gp1;   // CHANGING (left region)
+        gp1.centerX = -512.0;
         gp1.centerY = 231.0;
-        gp1.spatialLengthScale = 80.0;
+        gp1.spatialLengthScale = 35.0;
         gp1.temporalLengthScale = 60.0;
         gp1.variance = 0.4;
         gp1.meanValue = 0.5;
         gp1.noiseStdDev = 0.05;
         gp1.meanReversionRate = 0.000624;
         gp1.diffusionCoeff = 0.15;
+        gp1.frozen = false;
         gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
         s_sharedGPs.push_back(gp1);
 
-        GaussianProcessParams gp2;
-        gp2.centerX = -368.0;
+        GaussianProcessParams gp2;   // STATIC (right region)
+        gp2.centerX = -400.0;
         gp2.centerY = 231.0;
-        gp2.spatialLengthScale = 80.0;
+        gp2.spatialLengthScale = 35.0;
         gp2.temporalLengthScale = 80.0;
         gp2.variance = 0.4;
         gp2.meanValue = 0.5;
         gp2.noiseStdDev = 0.05;
-        gp2.meanReversionRate = 0.000624;
-        gp2.diffusionCoeff = 0.18;
+        gp2.meanReversionRate = 0.000624;   // unused while frozen
+        gp2.diffusionCoeff = 0.18;          // unused while frozen
+        gp2.frozen = true;                  // <-- Scenario A static half
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
 
-        gzmsg << "Initialized UNIFORM environment with shared GP fields" << std::endl;
+        gzmsg << "Initialized UNIFORM environment [HETEROGENEOUS Scenario A: changing left + static right]" << std::endl;
       }
 
       else if (_environment == "clustered_distrib_env"){
@@ -406,6 +418,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
 // ============================================================================
 void FieldLightBuoyPlugin::Implementation::UpdateSharedGaussianProcesses(double _dt){
   for (auto &gp : s_sharedGPs){
+    if (gp.frozen) continue;   // static component: amplitude (and thus buoy colour) never changes
     double theta = gp.meanReversionRate;
     double mu = gp.meanValue;
     double sigma = gp.diffusionCoeff;
