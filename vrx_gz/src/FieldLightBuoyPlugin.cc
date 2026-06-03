@@ -72,7 +72,22 @@ struct GaussianProcessParams
 
   // Current field state (for temporal correlation)
   double currentAmplitude;
+
+  double updateIntervalSec = 0.0;
+  double nextUpdateSec = -1.0;
 };
+
+// Evolve one GP a single OU step over dt seconds.
+static void StepGP(GaussianProcessParams &gp, double dt, std::mt19937 &rng, std::normal_distribution<double> &nd){
+  double theta = gp.meanReversionRate;
+  double mu = gp.meanValue;
+  double sigma = gp.diffusionCoeff;
+  double decay = std::exp(-theta * dt);
+  double condMean = mu + (gp.currentAmplitude - mu) * decay;
+  double condVar = (sigma * sigma / (2.0 * theta)) * (1.0 - std::exp(-2.0 * theta * dt));
+  gp.currentAmplitude = condMean + std::sqrt(std::max(0.0, condVar)) * nd(rng);
+  gp.currentAmplitude = std::max(0.0, std::min(1.2, gp.currentAmplitude));
+}
 
 // ============================================================================
 // STATIC GP STATE
@@ -165,6 +180,11 @@ class FieldLightBuoyPlugin::Implementation
   // Optional seed for reproducible field evolution across launches. If not set, each launch will have a different random field evolution but all buoys within a launch will share the same field evolution.
   public: bool fieldSeedProvided{false};
   public: uint32_t fieldSeed{0};
+
+  // Fixed per-buoy ground-truth offset
+  public: double buoyColorOffsetStdDev{0.0};
+  public: double buoyOffset{0.0};
+  public: bool buoyOffsetInit{false};
 };
 
 std::map<std::string, gz::msgs::Color>
@@ -290,11 +310,12 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp1.spatialLengthScale = 35.0;
         gp1.temporalLengthScale = 60.0;
         gp1.variance = 0.4;
-        gp1.meanValue = 0.5;
-        gp1.noiseStdDev = 0.05;
-        gp1.meanReversionRate = 0.000624;
-        gp1.diffusionCoeff = 0.15;
+        gp1.meanValue = 0.55;
+        gp1.noiseStdDev = 0.0;
+        gp1.meanReversionRate = 0.01;
+        gp1.diffusionCoeff = 0.07;
         gp1.frozen = false;
+        gp1.updateIntervalSec = 480.0;  // FAST region: evolves every 480 s
         gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
         s_sharedGPs.push_back(gp1);
 
@@ -304,11 +325,13 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.spatialLengthScale = 35.0;
         gp2.temporalLengthScale = 80.0;
         gp2.variance = 0.4;
-        gp2.meanValue = 0.5;
-        gp2.noiseStdDev = 0.05;
-        gp2.meanReversionRate = 0.000624;   // unused while frozen
-        gp2.diffusionCoeff = 0.18;          // unused while frozen
-        gp2.frozen = true;                  // <-- Scenario A static half
+        gp2.meanValue = 0.75; // SLOW region
+        gp2.noiseStdDev = 0.0;
+        gp2.meanReversionRate = 0.01;
+        gp2.diffusionCoeff = 0.07;
+        gp2.frozen = false; // slow-changing, NOT static
+        gp2.updateIntervalSec = 4800.0; // SLOW region: evolves every 4800 s (10x) -> ~7:1 flip ratio.
+                                        // PAPER SWEEP: set this {480,1440,2400,3360,4800,6720} for ratios ~{1,2.5,4.2,5.7,7.3,10}.
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
 
@@ -405,8 +428,11 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
   {
     this->fieldType = "gaussian_process";
     this->baseValue = 0.0;
+    // Fixed per-buoy offset: only uniform for now
+    if (_environment == "uniform_distrib_env")
+      this->buoyColorOffsetStdDev = 0.08;
   }
-  
+
   else
   {
     gzerr << "Unknown environment: " << _environment << std::endl;
@@ -507,6 +533,20 @@ double FieldLightBuoyPlugin::Implementation::EvaluateGaussianProcessField(double
     double contribution = gp.currentAmplitude * spatialCorr + noise;
 
     fieldValue += contribution;
+  }
+
+  // Fixed per-buoy offset (constant in time): drawn once, seeded by fieldSeed + buoy position so it's reproducible across launches. Gives spatial colour variety without temporal flicker
+  if (this->buoyColorOffsetStdDev > 0.0){
+    if (!this->buoyOffsetInit){
+      std::seed_seq seq{static_cast<int>(this->fieldSeed),
+                        static_cast<int>(std::lround(_x)),
+                        static_cast<int>(std::lround(_y))};
+      std::mt19937 offRng(seq);
+      std::normal_distribution<double> offNd(0.0, 1.0);
+      this->buoyOffset = this->buoyColorOffsetStdDev * offNd(offRng);
+      this->buoyOffsetInit = true;
+    }
+    fieldValue += this->buoyOffset;
   }
 
   fieldValue = std::max(0.0, std::min(1.2, fieldValue));
@@ -734,7 +774,22 @@ void FieldLightBuoyPlugin::Implementation::Update(){
                   : (simTimeSec - s_lastGPUpdateTimeSec);
 
       if (dt > 0.0){
-        UpdateSharedGaussianProcesses(dt);
+        // each GP evolves on its own update interval -> heterogeneous rates.
+        for (auto &gp : s_sharedGPs){
+          if (gp.frozen) continue;
+          double gpInterval;
+          if (gp.updateIntervalSec > 0.0) {
+              gpInterval = gp.updateIntervalSec;   // this GP has its own timing
+          } else {
+              gpInterval = this->updateInterval;   // use the default/global timing
+          }
+
+          if (gp.nextUpdateSec < 0.0) gp.nextUpdateSec = simTimeSec;   // first cycle init
+          if (simTimeSec + 1e-6 >= gp.nextUpdateSec){
+            StepGP(gp, gpInterval, s_sharedRng, s_sharedNormalDist);
+            gp.nextUpdateSec = simTimeSec + gpInterval;
+          }
+        }
         // PublishGPState is deferred until all buoys evaluate
 
         gzmsg << "GP Update t=" << simTimeSec << "s:";
