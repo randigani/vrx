@@ -879,7 +879,7 @@ void FieldLightBuoyPlugin::Configure(
     std::string worldName = worldNameComp->Data();
     // Strip weather suffix so clustered/boundary/uniform_distrib_env_{fog,night}
     // all map to the same GP parameters as the base env.
-    for (const std::string &suffix : {"_fog", "_night"}){
+    for (const std::string &suffix : {"_fog", "_night", "_glare"}){
       if (worldName.size() > suffix.size() &&
           worldName.compare(worldName.size() - suffix.size(),
                             suffix.size(), suffix) == 0){

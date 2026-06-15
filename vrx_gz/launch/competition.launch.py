@@ -23,7 +23,7 @@ import vrx_gz.launch
 from vrx_gz.model import Model
 
 
-WEATHERS = ('clear', 'fog', 'night')
+WEATHERS = ('clear', 'fog', 'night', 'glare')
 ENVS = ('clustered', 'boundary', 'uniform')
 
 
@@ -105,7 +105,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'weather',
             default_value='clear',
-            description='Weather variant: "clear", "fog", or "night". '
+            description='Weather variant: "clear", "fog", "night", or glare '
                         '"night" also enables WAM-V deck/camera lights.'),
         DeclareLaunchArgument(
             'sim_mode',
