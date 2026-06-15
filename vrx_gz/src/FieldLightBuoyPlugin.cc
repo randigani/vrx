@@ -297,13 +297,6 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
       }
 
       if (_environment == "uniform_distrib_env"){
-        // ====================================================================================
-        // HETEROGENEOUS-LAMBDA 
-        // Scenario A: CHANGING field over the LEFT buoys (1,2,4,7), STATIC field over the RIGHT buoys
-        // (3,5,6,8,9). Length scales shrunk 80 -> 35 so each component dominates its region.
-        // SCENARIO B (both change, ~500/800s): set gp2.frozen=false and use for ex:
-        // gp1.meanReversionRate=0.0015 (fast), gp2.meanReversionRate=0.00125 (slow).
-        // ====================================================================================
         GaussianProcessParams gp1;   // CHANGING (left region)
         gp1.centerX = -512.0;
         gp1.centerY = 231.0;
@@ -330,8 +323,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.meanReversionRate = 0.01;
         gp2.diffusionCoeff = 0.07;
         gp2.frozen = false; // slow-changing, NOT static
-        gp2.updateIntervalSec = 4800.0; // SLOW region: evolves every 4800 s (10x) -> ~7:1 flip ratio.
-                                        // PAPER SWEEP: set this {480,1440,2400,3360,4800,6720} for ratios ~{1,2.5,4.2,5.7,7.3,10}.
+        gp2.updateIntervalSec = 4800.0;
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
 
@@ -346,9 +338,11 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp1.temporalLengthScale = 50.0;
         gp1.variance = 0.36;
         gp1.meanValue = 0.6;
-        gp1.noiseStdDev = 0.08;
-        gp1.meanReversionRate = 0.001224;
-        gp1.diffusionCoeff = 0.20;
+        gp1.noiseStdDev = 0.0; 
+        gp1.meanReversionRate = 0.01;
+        gp1.diffusionCoeff = 0.07;
+        gp1.frozen = false;
+        gp1.updateIntervalSec = 480.0;
         gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
         s_sharedGPs.push_back(gp1);
 
@@ -359,13 +353,15 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.temporalLengthScale = 60.0;
         gp2.variance = 0.36;
         gp2.meanValue = 0.6;
-        gp2.noiseStdDev = 0.08;
-        gp2.meanReversionRate = 0.001224;
-        gp2.diffusionCoeff = 0.22;
+        gp2.noiseStdDev = 0.0;
+        gp2.meanReversionRate = 0.01;
+        gp2.diffusionCoeff = 0.07;
+        gp2.frozen = false;
+        gp2.updateIntervalSec = 4800.0;
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
 
-        gzmsg << "Initialized CLUSTERED environment with shared GP fields" << std::endl;
+        gzmsg << "Initialized CLUSTERED environment [HETEROGENEOUS: FAST cluster (gp1) + SLOW cluster (gp2)]" << std::endl;
       }
       else if (_environment == "boundary_distrib_env"){
         // Single large GP centered on the buoy field.
@@ -428,8 +424,8 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
   {
     this->fieldType = "gaussian_process";
     this->baseValue = 0.0;
-    // Fixed per-buoy offset: only uniform for now
-    if (_environment == "uniform_distrib_env")
+    if (_environment == "uniform_distrib_env" ||
+        _environment == "clustered_distrib_env")
       this->buoyColorOffsetStdDev = 0.08;
   }
 
@@ -745,9 +741,6 @@ void FieldLightBuoyPlugin::Implementation::Update(){
 
   std::lock_guard<std::mutex> lock(this->mutex);
 
-  // Heartbeat: republish cached colors at ~5 Hz so late-attaching
-  // subscribers (GUI, Python viz) catch up within a frame instead of
-  // waiting a full updateInterval (480 s) for the next GP cycle.
   {
     std::lock_guard<std::mutex> gpLock(s_gpMutex);
     double nowSec = this->currentTime.count();
@@ -779,9 +772,9 @@ void FieldLightBuoyPlugin::Implementation::Update(){
           if (gp.frozen) continue;
           double gpInterval;
           if (gp.updateIntervalSec > 0.0) {
-              gpInterval = gp.updateIntervalSec;   // this GP has its own timing
+              gpInterval = gp.updateIntervalSec;
           } else {
-              gpInterval = this->updateInterval;   // use the default/global timing
+              gpInterval = this->updateInterval;
           }
 
           if (gp.nextUpdateSec < 0.0) gp.nextUpdateSec = simTimeSec;   // first cycle init
