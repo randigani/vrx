@@ -312,8 +312,9 @@
     <scene>
       <sky></sky>
       <grid>false</grid>
-      <ambient>0.05 0.05 0.075</ambient>
-      <background>0.51 0.6 0.92</background>
+      <ambient>0.12 0.12 0.12</ambient> 
+      <!-- Decrease ^ these ^  for more glare effect  -->
+      <background>0.6 0.6 0.6</background>
     </scene>
 
     <!-- Estimated latitude/longitude of sydneyregatta
@@ -330,8 +331,8 @@
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>5 20 10 0 0 0</pose>
-      <diffuse>1 0.95 0.8 1</diffuse>
-      <specular>1 1 0.9 1</specular>
+      <diffuse>1 0.95 0.9 1</diffuse>
+      <specular>1 1 1 1</specular>
       <attenuation>
         <range>1000</range>
         <constant>1.0</constant>
