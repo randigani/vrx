@@ -296,6 +296,17 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         s_sharedRng = std::mt19937(rd());
       }
 
+      double gp2IntervalSec = 4800.0;
+      if (const char *envGp2 = std::getenv("GP2_INTERVAL")){
+        try {
+          gp2IntervalSec = std::stod(envGp2);
+          gzmsg << "FieldLightBuoyPlugin: using GP2_INTERVAL env var=" << gp2IntervalSec << "s" << std::endl;
+        } catch (...) {
+          gzwarn << "FieldLightBuoyPlugin: invalid GP2_INTERVAL '" << envGp2
+                 << "', using default " << gp2IntervalSec << "s" << std::endl;
+        }
+      }
+
       if (_environment == "uniform_distrib_env"){
         GaussianProcessParams gp1;   // CHANGING (left region)
         gp1.centerX = -512.0;
@@ -323,7 +334,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.meanReversionRate = 0.01;
         gp2.diffusionCoeff = 0.07;
         gp2.frozen = false; // slow-changing, NOT static
-        gp2.updateIntervalSec = 4800.0;
+        gp2.updateIntervalSec = gp2IntervalSec;  //GP2_INTERVAL env var (default 4800)
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
 
@@ -357,7 +368,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gp2.meanReversionRate = 0.01;
         gp2.diffusionCoeff = 0.07;
         gp2.frozen = false;
-        gp2.updateIntervalSec = 4800.0;
+        gp2.updateIntervalSec = gp2IntervalSec;  // GP2_INTERVAL env var (default 4800)
         gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
         s_sharedGPs.push_back(gp2);
 
