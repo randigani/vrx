@@ -343,9 +343,9 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
 
       else if (_environment == "clustered_distrib_env"){
         GaussianProcessParams gp1;
-        gp1.centerX = -528.0;
-        gp1.centerY = 199.0;
-        gp1.spatialLengthScale = 25.0;
+        gp1.centerX = -540.0;
+        gp1.centerY = 200.0;
+        gp1.spatialLengthScale = 40.0;
         gp1.temporalLengthScale = 50.0;
         gp1.variance = 0.36;
         gp1.meanValue = 0.6;
@@ -358,9 +358,9 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         s_sharedGPs.push_back(gp1);
 
         GaussianProcessParams gp2;
-        gp2.centerX = -448.0;
-        gp2.centerY = 246.0;
-        gp2.spatialLengthScale = 25.0;
+        gp2.centerX = -390.0;
+        gp2.centerY = 200.0;
+        gp2.spatialLengthScale = 40.0;
         gp2.temporalLengthScale = 60.0;
         gp2.variance = 0.36;
         gp2.meanValue = 0.6;

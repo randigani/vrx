@@ -362,7 +362,7 @@
     <include>
       <!-- <name>robotx_light_buoy_rgb</name> -->
       <name>robotx_light_buoy_1</name>
-      <pose>-528 186 0.32 0 0 0</pose>
+      <pose>-560 180 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_rgb</uri> -->
       <uri>robotx_light_buoy_1</uri>
 
@@ -401,7 +401,7 @@
     <include>
       <!-- <name>robotx_light_buoy_bgr</name> -->
       <name>robotx_light_buoy_2</name>
-      <pose>-516 199 0.32 0 0 0</pose> 
+      <pose>-520 180 0.32 0 0 0</pose> 
       <!-- <uri>robotx_light_buoy_bgr</uri> -->
       <uri>robotx_light_buoy_2</uri>
 
@@ -440,7 +440,7 @@
     <include>
       <!-- <name>robotx_light_buoy_bgy</name> -->
       <name>robotx_light_buoy_3</name>
-      <pose>-540 199 0.32 0 0 0</pose> 
+      <pose>-560 220 0.32 0 0 0</pose> 
       <!-- <uri>robotx_light_buoy_bgy</uri> -->
       <uri>robotx_light_buoy_3</uri>
 
@@ -479,7 +479,7 @@
     <include>
       <!-- <name>robotx_light_buoy_gbr</name> -->
       <name>robotx_light_buoy_4</name>
-      <pose>-528 212 0.32 0 0 0</pose> 
+      <pose>-520 220 0.32 0 0 0</pose> 
       <!-- <uri>robotx_light_buoy_gbr</uri> -->
       <uri>robotx_light_buoy_4</uri>
 
@@ -518,7 +518,7 @@
     <include>
       <!-- <name>robotx_light_buoy_rbg</name> -->
       <name>robotx_light_buoy_5</name>
-      <pose>-461 246 0.32 0 0 0</pose>
+      <pose>-430 200 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_rbg</uri> -->
       <uri>robotx_light_buoy_5</uri>
 
@@ -557,7 +557,7 @@
     <include>
       <!-- <name>robotx_light_buoy_rgy</name> -->
       <name>robotx_light_buoy_6</name>
-      <pose>-435 246 0.32 0 0 0</pose>
+      <pose>-350 200 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_rgy</uri> -->
       <uri>robotx_light_buoy_6</uri>
 
@@ -596,7 +596,7 @@
     <include>
       <!-- <name>robotx_light_buoy_ybr</name> -->
       <name>robotx_light_buoy_7</name>
-      <pose>-448 259 0.32 0 0 0</pose>
+      <pose>-390 240 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_ybr</uri> -->
       <uri>robotx_light_buoy_7</uri>
 
@@ -635,7 +635,7 @@
     <include>
       <!-- <name>robotx_light_buoy_ygb</name> -->
       <name>robotx_light_buoy_8</name>
-      <pose>-448 233 0.32 0 0 0</pose>
+      <pose>-390 160 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_ygb</uri> -->
       <uri>robotx_light_buoy_8</uri>
 
@@ -674,7 +674,7 @@
     <include>
       <!-- <name>robotx_light_buoy_yrg</name> -->
       <name>robotx_light_buoy_9</name>
-      <pose>-448 246 0.32 0 0 0</pose>
+      <pose>-390 200 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_yrg</uri> -->
       <uri>robotx_light_buoy_9</uri>
 
