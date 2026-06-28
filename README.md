@@ -2,17 +2,18 @@ This repository has Gazebo nodes which can modulate current on their own.
 
 For constant current, run:
 ```
-ros2 run enviro_disturbances const.launch.py vel:={velocity} ang:={angle from x-axis} time:={time to reach vel, default:1.0} 
-  updraft:={vertical current, default 0}
+ros2 run enviro_disturbances const.launch.py vel:={velocity} ang:={angle from x-axis}
+    time:={time to reach vel, default:1.0} updraft:={vertical current, default 0}
 ```
 
 For oscillating current, run:
 ```
-ros2 run enviro_disturbances osc.launch.py high:={high value for oscillation} low:={low value for oscillation, default: 0} 
-  ang:={angle from x-axis} period:={period of oscillation, default: 6.0} updraft:={vertical current, default: 0}
+ros2 run enviro_disturbances osc.launch.py high:={high velocity for oscillation} ang:={angle from x-axis}
+    low:={low velocity for oscillation, default: 0} period:={period of oscillation, default: 6.0} updraft:={vertical current, default: 0}
 ```
+The parameters without default values are required. Velocities are in m/s.
 
-As it is, running multiple of these nodes at once causes conflict... For now, only run one at a time.
+Running more than one of these at once causes conflict at this point. For now, only have one of these running at a time...
 ***
 
 **Glare:** 
@@ -155,4 +156,4 @@ Higher damping coefficients correlates to how strongly the current wants to take
 
 Small pitfall:  Since this isn’t a VRX-bespoke plugin, the hydrodynamic force is applied to the entire USV mesh rather than just the submersed part of the hull. However, the difference this produces should be negligible at reasonable current speeds. If realism is needed in extreme scenarios, the difference could be mostly compensated for by fine-tuning damping values. 
 
-For a giggle, run the command during a simulation with a resulting current vector of 200m/s or more. 😅
+For a chuckle, run the command during a simulation with a resulting current vector of 200m/s or more. 😅
