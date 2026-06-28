@@ -13,7 +13,7 @@ ros2 run enviro_disturbances osc.launch.py high:={high velocity for oscillation}
 ```
 The parameters without default values are required. Velocities are in m/s.
 
-Running more than one of these at once causes conflict at this point. For now, only have one of these running at a time...
+Running more than one of these at once causes conflict at this point. For now, avoid letting that happen...
 ***
 
 **Glare:** 
@@ -152,8 +152,8 @@ This plugin uses [Gazebo’s realistic hydrodynamic physics](https://gazebosim.o
 
 Change the values in the quotes for desired current velocity in m/s. Don’t set `<default_current>` to `0 0 0` in wamv_gazebo.xacro.urdf, since I found for some reason this causes the above command to lose its effect during simulation. 
 
-Higher damping coefficients correlates to how strongly the current wants to take the USV with it. Therefore, default values (Zero for all coefficients) results in zero hydrodynamic force on the USV.
+Higher damping (drag) coefficients correlates to how strongly the current wants to take the USV with it. Therefore, default values (Zero for all coefficients) results in zero hydrodynamic force on the USV.
 
-Small pitfall:  Since this isn’t a VRX-bespoke plugin, the hydrodynamic force is applied to the entire USV mesh rather than just the submersed part of the hull. However, the difference this produces should be negligible at reasonable current speeds. If realism is needed in extreme scenarios, the difference could be mostly compensated for by fine-tuning damping values. 
+Minor pitfall:  Since hydrodynamics isn’t a VRX-bespoke plugin, the hydrodynamic force gets applied to the entire USV mesh rather than just the submersed part of the hull. The difference this produces should be negligible at reasonable current speeds. If realism is necessary to its fullest extent, fine-tuning the damping values may get you close.
 
-For a chuckle, run the command during a simulation with a resulting current vector of 200m/s or more. 😅
+Run the command during a simulation with a resulting current vector of 200m/s or more for a chuckle 😅
