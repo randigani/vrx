@@ -909,14 +909,14 @@
           key: "gain" 
           value {
             type: DOUBLE
-            double_value: 3.0
+            double_value: 1.0
           }
         }
         params {
           key: "period"
           value {
             type: DOUBLE
-            double_value: 5
+            double_value: 6
           }
         }
         params {
