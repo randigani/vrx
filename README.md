@@ -1,4 +1,10 @@
-This repository has Gazebo nodes which can modulate current. 
+Current modulating Gazebo nodes
+---
+
+For interactive input, run:
+```
+ros2 launch enviro_disturbances launch.py type:={const or osc}
+```
 
 For constant current, run:
 ```
@@ -8,8 +14,8 @@ ros2 launch enviro_disturbances const.launch.py vel:={velocity} ang:={angle from
 
 For oscillating current, run:
 ```
-ros2 launch enviro_disturbances osc.launch.py high:={oscillation top velocity} ang:={angle from x-axis}
-    low:={oscillation bottom velocity, default: 0} period:={period of oscillation, default: 6.0} updraft:={vertical current, default: 0}
+ros2 launch enviro_disturbances osc.launch.py high:={high velocity for oscillation} ang:={angle from x-axis}
+    low:={low velocity for oscillation, default: 0} period:={period of oscillation, default: 6.0} updraft:={vertical current, default: 0}
 ```
 The parameters without default values are required. Velocities are in m/s.
 
@@ -51,6 +57,8 @@ In the <scene> block:
 ```
 This change makes the shadows more intense, creating the dark glare effect. Like before, the three values are RGB values.
 
+This cannot be changed at runtime. 
+
 **Wind:**  
 ---
 In the world .sdf file: 
@@ -78,6 +86,8 @@ In the world .sdf file:
    </plugin>
 ```
 [VRX exposes](https://github.com/osrf/vrx/wiki/wind_params_tutorial) a bunch of parameters for wind simulation. Change wind direction, velocity, modulation, etc. 
+
+This cannot be changed at runtime. 
 
 **Waves:** 
 ---
@@ -120,6 +130,8 @@ In the world .sdf file:
 
 Native [VRX plugin](https://github.com/osrf/vrx/wiki/wave_params_tutorial), Gain controls the height of the waves, period controls the wave period. Direction didn’t really seem to do anything (Could just be me), steepness apparently changes the waves shape.
 
+This cannot be changed at runtime.
+
 **Ocean Current:**  
 ---
 Add this to wamv_gazebo.urdf.xacro, under the other `<gazebo>` blocks:  
@@ -131,10 +143,10 @@ Add this to wamv_gazebo.urdf.xacro, under the other `<gazebo>` blocks:
      <default_current>0.00001 0.0 0.0</default_current>  
      <!-- /ocean_current topic only works when this is non-zero...?  -->
 
-     <!-- Linear damping -->  
-     <xU>-5.0</xU>  
+     <!-- Linear damping, guess values -->  
+     <xU>-2.0</xU>  
      <yV>-5.0</yV>  
-     <zW>-5.0</zW>  
+     <zW>-3.0</zW>  
      <kP>-1.0</kP>  
      <mQ>-1.0</mQ>  
      <nR>-1.0</nR>

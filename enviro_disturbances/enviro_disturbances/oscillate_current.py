@@ -20,25 +20,30 @@ logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 def main():
     node = Node()
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--top', type=float, required=True)
-    parser.add_argument('-l', '--bottom', type=float, default = 0)
-    parser.add_argument('-a', '--angle', type=float, default = 0)
-    parser.add_argument('--updraft', type=float, default = 0)
-    parser.add_argument('-p', '--period', type=float, default = 5.0)
+    try:
+        parser = argparse.ArgumentParser(exit_on_error=False)
+        parser.add_argument('-v', '--top', type=float, required=True)
+        parser.add_argument('-l', '--bottom', type=float, required=True)
+        parser.add_argument('-a', '--angle', type=float, required=True)
+        parser.add_argument('--updraft', type=float, required=False)
+        parser.add_argument('-p', '--period', type=float, required=True)
 
-    args = parser.parse_args()
+        args = parser.parse_args()
+        top = args.top
+        bottom = args.bottom
+        ang = args.angle
+        updr = args.updraft
+        period = args.period
+
+    except:
+        logging.critical("Failed to parse arguments!! Exiting")
+        return
 
     logging.info("Starting current oscillation")
 
-    top = args.top
-    bottom = args.bottom
-    ang = args.angle
-    updr = args.updraft
-    period = args.period
-
     if period <= 0:
         logging.critical('Period cannot be less than or equal to zero.')
+        return
     elif period < 0.5:
         logging.warning(f'The period is set very short ({period}s)!')
 
@@ -104,4 +109,36 @@ def main():
 
     finally:
         logging.info("Stopping node")
+        msg = Vector3d()
+        msg.x = 0
+        msg.y = 0
+        msg.z = 0
 
+        pub_current.publish(msg)
+
+
+def ask_for_input(var_name, default_value = None, bottom_lim = None):
+
+    default_val_str = "" if default_value is None else f"(default: {default_value})"
+
+    while True:
+        inp = input(f"Enter float value for {var_name} {default_val_str}: ")
+
+        if default_value is not None:
+            if not inp.strip():
+                print("Setting default value")
+                return default_value
+
+        try:
+            v = float(inp)
+        except ValueError:
+            print("Invalid input!")
+            continue
+
+        if bottom_lim:
+            if v <= bottom_lim:
+                print(f"{var_name} cannot be less than {bottom_lim}!")
+                continue
+
+        return v
+            

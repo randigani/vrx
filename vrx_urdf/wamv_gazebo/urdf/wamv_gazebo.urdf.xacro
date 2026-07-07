@@ -114,10 +114,10 @@
       <default_current>0.00001 0.0 0.0</default_current>
       <!-- /ocean_current topic only works when this is non-zero...?  -->
 
-      <!-- Linear damping -->
-      <xU>-5.0</xU>
+      <!-- Linear damping, guess values -->
+      <xU>-2.0</xU>
       <yV>-5.0</yV>
-      <zW>-5.0</zW>
+      <zW>-3.0</zW>
       <kP>-1.0</kP>
       <mQ>-1.0</mQ>
       <nR>-1.0</nR>

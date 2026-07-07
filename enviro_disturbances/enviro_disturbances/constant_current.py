@@ -18,20 +18,25 @@ logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 def main():
     node = Node()
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--velocity', type=float, default = 0)
-    parser.add_argument('-a', '--angle', type=float, default = 0)
-    parser.add_argument('--updraft', type=float, default = 0)
-    parser.add_argument('-t', '--dt', type=float, default = 1.0)
+    try:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-v', '--velocity', type=float, required=True)
+        parser.add_argument('-a', '--angle', type=float, required=True)
+        parser.add_argument('--updraft', type=float, required=True)
+        parser.add_argument('-t', '--dt', type=float, required=True)
 
-    args = parser.parse_args()
+        args = parser.parse_args()
+
+        vel = args.velocity
+        ang = args.angle
+        updr = args.updraft
+        dt = args.dt
+
+    except:
+        logging.critical("Failed to parse arguments!! Exiting")
+        return
 
     logging.info("Starting current")
-
-    vel = args.velocity
-    ang = args.angle
-    updr = args.updraft
-    dt = args.dt
 
     _tgt = Vector3d()
 
@@ -110,3 +115,27 @@ def main():
     finally:
         logging.info("Stopping node")
 
+def ask_for_input(var_name, default_value = None, bottom_lim = None):
+
+    default_val_str = "" if default_value is None else f"(default: {default_value})"
+
+    while True:
+        inp = input(f"Enter float value for {var_name} {default_val_str}: ")
+
+        if default_value is not None:
+            if not inp.strip():
+                print("Setting default value")
+                return default_value
+
+        try:
+            v = float(inp)
+        except ValueError:
+            print("Invalid input!")
+            continue
+
+        if bottom_lim:
+            if v <= bottom_lim:
+                print(f"{var_name} cannot be less than {bottom_lim}!")
+                continue
+
+        return v
