@@ -26,7 +26,7 @@ setup(
         'console_scripts': [
             'oscillate_current = enviro_disturbances.oscillate_current:main',
             'constant_current = enviro_disturbances.constant_current:main',
-            # 'modulate_current = enviro_disturbances.modulate_current:main'
+            'modulate_current = enviro_disturbances.modulate_current:main'
         ],
     },
 )

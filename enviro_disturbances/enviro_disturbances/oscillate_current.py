@@ -59,31 +59,34 @@ def main():
     node.subscribe(Vector3d, '/ocean_current', onetime_callback)
 
     if not _rcv.wait(timeout=0.5):
-        logging.debug('Assuming no initial current...')
+        logging.debug('No other publishers here. Good to publish')
         _org.x = 0
         _org.y = 0
         _org.z = 0
+    else:
+        logging.error('Detected another publisher!! Please quit the other publisher. Exiting')
+        return
 
     node.unsubscribe('/ocean_current')
 
-    terminate_others = node.advertise('/ocean_current/terminate_any_publishers', Boolean)
-    msg = Boolean()
-    msg.data = True
-    terminate_others.publish(msg)
+    # terminate_others = node.advertise('/ocean_current/terminate_any_publishers', Boolean)
+    # msg = Boolean()
+    # msg.data = True
+    # terminate_others.publish(msg)
 
-    time.sleep(0.5)
-    del terminate_others
+    # time.sleep(0.5)
+    # del terminate_others
 
-    def terminate_node(request):
-        node.running = False
-        logging.warning("Termination requested from another node!")
-        raise KeyboardInterrupt
-
-    node.subscribe(
-        Boolean, 
-        '/ocean_current/terminate_any_publishers',
-        terminate_node
-    )
+    # def terminate_node(request):
+        # node.running = False
+        # logging.warning("Termination requested from another node!")
+        # raise KeyboardInterrupt
+# 
+    # node.subscribe(
+        # Boolean, 
+        # '/ocean_current/terminate_any_publishers',
+        # terminate_node
+    # )
 
     pub_current = node.advertise('/ocean_current', Vector3d)
 
@@ -116,29 +119,4 @@ def main():
 
         pub_current.publish(msg)
 
-
-def ask_for_input(var_name, default_value = None, bottom_lim = None):
-
-    default_val_str = "" if default_value is None else f"(default: {default_value})"
-
-    while True:
-        inp = input(f"Enter float value for {var_name} {default_val_str}: ")
-
-        if default_value is not None:
-            if not inp.strip():
-                print("Setting default value")
-                return default_value
-
-        try:
-            v = float(inp)
-        except ValueError:
-            print("Invalid input!")
-            continue
-
-        if bottom_lim:
-            if v <= bottom_lim:
-                print(f"{var_name} cannot be less than {bottom_lim}!")
-                continue
-
-        return v
             

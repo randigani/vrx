@@ -58,7 +58,12 @@ def get_params(context):
             cmd.extend(['--updraft', ask_for_input("Updraft current velocity", 0.0)])
 
         case 'modulate_current':
-            pass
+            cmd.extend(['-v', ask_for_input("Top current velocity")])
+            cmd.extend(['-l', ask_for_input("Bottom current velocity", 0)])
+            cmd.extend(['-a', ask_for_input("Current angle")])
+            cmd.extend(['-p', ask_for_input("Oscillation period", bottom_lim=0.2)])
+            cmd.extend(['-m', ask_for_input("Modulation period multiple against oscillation period", bottom_lim=1)])
+            cmd.extend(['--updraft', ask_for_input("Updraft current velocity", 0.0)])
 
     return [ExecuteProcess(cmd=cmd, output='screen')]
 
