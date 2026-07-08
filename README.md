@@ -3,23 +3,32 @@ Current modulating Gazebo nodes
 
 For interactive input, run:
 ```
-ros2 launch enviro_disturbances launch.py type:={const or osc}
+ros2 launch enviro_disturbances launch.py type:={const, osc, mod}
 ```
 
 For constant current, run:
 ```
-ros2 launch enviro_disturbances const.launch.py vel:={velocity} ang:={angle from x-axis}
-    time:={time to reach vel, default:1.0} updraft:={vertical current, default 0}
+ros2 launch enviro_disturbances const.launch.py vel:={velocity, default: 0.3} ang:={angle from x-axis, default: 1.0}
+    t:={time to reach vel, default:1.0} up:={vertical current, default 0}
 ```
 
 For oscillating current, run:
 ```
-ros2 launch enviro_disturbances osc.launch.py high:={high velocity for oscillation} ang:={angle from x-axis}
-    low:={low velocity for oscillation, default: 0} period:={period of oscillation, default: 6.0} updraft:={vertical current, default: 0}
+ros2 launch enviro_disturbances osc.launch.py hi:={high velocity for oscillation, default: 0.3} ang:={angle from x-axis in degrees, default: 0}
+    lo:={low velocity for oscillation, default: 0} pd:={period of oscillation, default: 6.0} up:={vertical current, default: 0}
 ```
-The parameters without default values are required. Velocities are in m/s.
 
-Running more than one of these at once causes conflict at this point. For now, avoid letting that happen...
+For amplitude-modulated current, run:
+```
+ros2 launch enviro_disturbances mod.launch.py hi:={high velocity for oscillation, default: 0.3} ang:={angle from x-axis in degrees, default: 0}
+    lo:={low velocity for oscillation, default: 0} pd:={period of oscillation, default: 6.0} mod:={amplitude modulation modulus, default: 2.5}
+    up:={vertical current, default: 0}
+```
+```mod``` might be confusing: This is the ratio between the amplitude modulation period and the oscillation period. 
+
+Velocities are in m/s. 
+
+Running more than one of these at once causes conflict in `/ocean_current` . Please avoid this!
 ***
 
 **Glare:** 
