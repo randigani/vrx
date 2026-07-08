@@ -30,8 +30,8 @@ def get_params(context):
             executable = 'constant_current'
         case 'osc':
             executable = 'oscillate_current'
-        # case 'mod':
-        #     executable = 'modulate_current'
+        case 'mod':
+            executable = 'modulate_current'
         case _:
             print(f"Type must be: const, osc. Got: {type} - Rejecting!")
             return
@@ -53,14 +53,14 @@ def get_params(context):
         case 'oscillate_current':
             cmd.extend(['-v', ask_for_input("Top current velocity")])
             cmd.extend(['-l', ask_for_input("Bottom current velocity", 0)])
-            cmd.extend(['-a', ask_for_input("Current angle")])
+            cmd.extend(['-a', ask_for_input("Current angle in degrees")])
             cmd.extend(['-p', ask_for_input("Oscillation period", bottom_lim=0.2)])
             cmd.extend(['--updraft', ask_for_input("Updraft current velocity", 0.0)])
 
         case 'modulate_current':
             cmd.extend(['-v', ask_for_input("Top current velocity")])
             cmd.extend(['-l', ask_for_input("Bottom current velocity", 0)])
-            cmd.extend(['-a', ask_for_input("Current angle")])
+            cmd.extend(['-a', ask_for_input("Current angle in degrees")])
             cmd.extend(['-p', ask_for_input("Oscillation period", bottom_lim=0.2)])
             cmd.extend(['-m', ask_for_input("Modulation period multiple against oscillation period", bottom_lim=1)])
             cmd.extend(['--updraft', ask_for_input("Updraft current velocity", 0.0)])
@@ -77,7 +77,7 @@ def ask_for_input(var_name, default_value = None, bottom_lim = None):
 
         if default_value is not None:
             if not inp.strip():
-                print("Setting default value")
+                print(f"Setting default value of {default_value}")
                 return str(default_value)
 
         try:

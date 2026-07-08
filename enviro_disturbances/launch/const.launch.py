@@ -15,17 +15,17 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument('vel', default_value='0.3'),
-        DeclareLaunchArgument('time', default_value = '1.0'),
+        DeclareLaunchArgument('t', default_value = '1.0'),
         DeclareLaunchArgument('ang', default_value='0'),
-        DeclareLaunchArgument('updraft', default_value = '0'),
+        DeclareLaunchArgument('up', default_value = '0'),
 
         ExecuteProcess(
             cmd = [
                 exec_path, 
                 '-v', LaunchConfiguration('vel'),
                 '-a', LaunchConfiguration('ang'),
-                '-t', LaunchConfiguration('time'),
-                '--updraft', LaunchConfiguration('updraft')
+                '-t', LaunchConfiguration('t'),
+                '--updraft', LaunchConfiguration('up')
             ],
             output='screen'
         )

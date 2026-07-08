@@ -95,6 +95,8 @@ def main():
 
     start = time.perf_counter()
 
+    counter = 0
+
     try:
         while True:
             now = time.perf_counter() - start
@@ -108,10 +110,16 @@ def main():
             msg.z = updr
 
             pub_current.publish(msg)
+
+            if counter % 128 == 0:
+                logging.info(f"\nOscillating current: \n{vec:.8f} m/s, {now:.8f} secs")
+            
+            counter += 1
+
             time.sleep(0.01)
 
     finally:
-        logging.info("Stopping node")
+        logging.info("Stopping node!")
         msg = Vector3d()
         msg.x = 0
         msg.y = 0

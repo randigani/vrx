@@ -6,7 +6,7 @@ import os
 
 def generate_launch_description():
 
-    executable = 'oscillate_current'
+    executable = 'modulate_current'
 
     exec_path = os.path.join(
     get_package_prefix('enviro_disturbances'),
@@ -19,6 +19,7 @@ def generate_launch_description():
         DeclareLaunchArgument('ang', default_value = '0'),
         DeclareLaunchArgument('pd', default_value = '6.0'),
         DeclareLaunchArgument('up', default_value = '0'),
+        DeclareLaunchArgument('mod', default_value = '2.5'),
 
 
         ExecuteProcess(
@@ -28,6 +29,7 @@ def generate_launch_description():
                 '-l', LaunchConfiguration('lo'),
                 '-a', LaunchConfiguration('ang'),
                 '-p', LaunchConfiguration('pd'),
+                '-m', LaunchConfiguration('mod'),
                 '--updraft', LaunchConfiguration('up')
             ],
             output='screen'

@@ -6,12 +6,14 @@ import time
 import threading
 from gz.transport13 import Node
 import argparse
-from gz.msgs10.vector3d_pb2 import Vector3d, Empty
+from gz.msgs10.vector3d_pb2 import Vector3d
 
 # publish to /ocean-current.
 # Performs double modulation on the current.
 # Takes target current vector, oscillation period and offset,
 # Gain modulation multiple (n * period for oscillation)
+
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 
 def main():
     node = Node()
@@ -80,6 +82,8 @@ def main():
 
     start = time.perf_counter()
     
+    counter = 0
+
     try:
         while True:
             now = time.perf_counter() - start
@@ -94,6 +98,12 @@ def main():
             msg.z = updr
 
             pub_current.publish(msg)
+
+            if counter % 128 == 0:
+                logging.info(f"\nModulating current: \n{vec:.8f} m/s, {now:.8f} secs")
+            
+            counter += 1
+
             time.sleep(0.01)
 
     finally:
