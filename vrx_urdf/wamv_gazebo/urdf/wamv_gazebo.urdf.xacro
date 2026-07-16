@@ -104,6 +104,29 @@
     </plugin>
   </gazebo>
 
+  <!-- Ocean current plugin -->
+  <!-- Current speed is mapped to gz topic /ocean_current -->
+  <!-- In terminal: gz topic -t /ocean_current -m gz.msgs.Vector3d -p 'x: 2.0, y: 1.0, z: 0.0' -->
+   <gazebo>
+    <plugin filename="gz-sim-hydrodynamics-system"
+            name="gz::sim::systems::Hydrodynamics">
+      <link_name>wamv/base_link</link_name>
+      <default_current>0.00001 0.0 0.0</default_current>
+      <!-- /ocean_current topic only works when this is non-zero...?  -->
+
+      <!-- Linear damping, guess values -->
+      <xU>-2.0</xU>
+      <yV>-5.0</yV>
+      <zW>-3.0</zW>
+      <kP>-1.0</kP>
+      <mQ>-1.0</mQ>
+      <nR>-1.0</nR>
+
+      <!-- Quadratic damping -->
+      <xUabsU>-100.0</xUabsU>
+      <yVabsV>-100.0</yVabsV>
+    </plugin>
+  </gazebo>
 
   <!-- === Sensors === -->
   <!-- Use sensor yaml file if given -->

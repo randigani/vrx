@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 
 <sdf version="1.9">
-  <world name="clustered_distrib_env">
+  <world name="clustered_distrib_env_glare">
 
     <physics name="4ms" type="dart">
       <max_step_size>0.004</max_step_size>
@@ -312,8 +312,9 @@
     <scene>
       <sky></sky>
       <grid>false</grid>
-      <ambient>1.0 1.0 1.0</ambient>
-      <background>0.8 0.8 0.8</background>
+      <ambient>0.12 0.12 0.12</ambient> 
+      <!-- Decrease ^ these ^  for more glare effect  -->
+      <background>0.6 0.6 0.6</background>
     </scene>
 
     <!-- Estimated latitude/longitude of sydneyregatta
@@ -329,16 +330,18 @@
 
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
-      <pose>0 0 10 0 0 0</pose>
-      <diffuse>0.8 0.8 0.8 1</diffuse>
-      <specular>0.2 0.2 0.2 1</specular>
+      <pose>5 20 10 0 0 0</pose>
+      <diffuse>1 0.95 0.9 1</diffuse>
+      <specular>1 1 1 1</specular>
+      <!-- Increase ^ These numbers (up to 1) for stronger glint -->
       <attenuation>
         <range>1000</range>
-        <constant>0.9</constant>
-        <linear>0.01</linear>
-        <quadratic>0.001</quadratic>
+        <constant>1.0</constant>
+        <linear>0.00</linear>
+        <quadratic>0.000</quadratic>
       </attenuation>
-      <direction>-0.5 0.1 -0.9</direction>
+      <direction>-0.4 -0.9 -0.2</direction>
+      <!-- Set the vector ^ so the sun is at a low angle -->
     </light>
 
     <!-- <include>
@@ -362,7 +365,7 @@
     <include>
       <!-- <name>robotx_light_buoy_rgb</name> -->
       <name>robotx_light_buoy_1</name>
-      <pose>-560 180 0.32 0 0 0</pose>
+      <pose>-528 186 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_rgb</uri> -->
       <uri>robotx_light_buoy_1</uri>
 
@@ -401,7 +404,7 @@
     <include>
       <!-- <name>robotx_light_buoy_bgr</name> -->
       <name>robotx_light_buoy_2</name>
-      <pose>-520 180 0.32 0 0 0</pose> 
+      <pose>-516 199 0.32 0 0 0</pose> 
       <!-- <uri>robotx_light_buoy_bgr</uri> -->
       <uri>robotx_light_buoy_2</uri>
 
@@ -440,7 +443,7 @@
     <include>
       <!-- <name>robotx_light_buoy_bgy</name> -->
       <name>robotx_light_buoy_3</name>
-      <pose>-560 220 0.32 0 0 0</pose> 
+      <pose>-540 199 0.32 0 0 0</pose> 
       <!-- <uri>robotx_light_buoy_bgy</uri> -->
       <uri>robotx_light_buoy_3</uri>
 
@@ -479,7 +482,7 @@
     <include>
       <!-- <name>robotx_light_buoy_gbr</name> -->
       <name>robotx_light_buoy_4</name>
-      <pose>-520 220 0.32 0 0 0</pose> 
+      <pose>-528 212 0.32 0 0 0</pose> 
       <!-- <uri>robotx_light_buoy_gbr</uri> -->
       <uri>robotx_light_buoy_4</uri>
 
@@ -518,7 +521,7 @@
     <include>
       <!-- <name>robotx_light_buoy_rbg</name> -->
       <name>robotx_light_buoy_5</name>
-      <pose>-430 200 0.32 0 0 0</pose>
+      <pose>-461 246 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_rbg</uri> -->
       <uri>robotx_light_buoy_5</uri>
 
@@ -557,7 +560,7 @@
     <include>
       <!-- <name>robotx_light_buoy_rgy</name> -->
       <name>robotx_light_buoy_6</name>
-      <pose>-350 200 0.32 0 0 0</pose>
+      <pose>-435 246 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_rgy</uri> -->
       <uri>robotx_light_buoy_6</uri>
 
@@ -596,7 +599,7 @@
     <include>
       <!-- <name>robotx_light_buoy_ybr</name> -->
       <name>robotx_light_buoy_7</name>
-      <pose>-390 240 0.32 0 0 0</pose>
+      <pose>-448 259 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_ybr</uri> -->
       <uri>robotx_light_buoy_7</uri>
 
@@ -635,7 +638,7 @@
     <include>
       <!-- <name>robotx_light_buoy_ygb</name> -->
       <name>robotx_light_buoy_8</name>
-      <pose>-390 160 0.32 0 0 0</pose>
+      <pose>-448 233 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_ygb</uri> -->
       <uri>robotx_light_buoy_8</uri>
 
@@ -674,7 +677,7 @@
     <include>
       <!-- <name>robotx_light_buoy_yrg</name> -->
       <name>robotx_light_buoy_9</name>
-      <pose>-390 200 0.32 0 0 0</pose>
+      <pose>-448 246 0.32 0 0 0</pose>
       <!-- <uri>robotx_light_buoy_yrg</uri> -->
       <uri>robotx_light_buoy_9</uri>
 
@@ -906,24 +909,24 @@
           }
         }
         params {
-          key: "gain" 
+          key: "gain"
           value {
             type: DOUBLE
-            double_value: 1.0
+            double_value: 0.3
           }
         }
         params {
           key: "period"
           value {
             type: DOUBLE
-            double_value: 6
+            double_value: 5
           }
         }
         params {
           key: "steepness"
           value {
             type: DOUBLE
-            double_value: 2.0
+            double_value: 0
           }
         }
       </message>
