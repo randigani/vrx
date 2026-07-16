@@ -1,180 +1,70 @@
-Current modulating Gazebo nodes
----
+# Virtual RobotX (VRX)
+This repository is the home to the source code and software documentation for the VRX simulation environment, which supports simulation of unmanned surface vehicles in marine environments.
+* Designed in coordination with RobotX organizers, this project provides arenas and tasks similar to those featured in past and future RobotX competitions, as well as a description of the WAM-V platform.
+* For RobotX competitors this simulation environment is intended as a first step toward developing tools prototyping solutions in advance of physical on-water testing.
+* We also welcome users with simulation needs beyond RobotX. As we continue to improve the environment, we hope to offer support to a wide range of potential applications.
 
-For interactive input, run:
+## A new modernization development: Gazebo Harmonic and ROS 2 Jazzy
+
+> [!NOTE]
+> This development effort was executed by the
+> [Honu Robotics](https://honurobotics.com) team, thanks to the sponsorship
+> of [RoboNation](https://robonation.org/).
+
+We are happy to announce that the repository has been ported to use supported
+versions of Gazebo and ROS 2:
+  * Code is now working with Gazebo Harmonic and ROS 2 Jazzy
+  * This is the recommended configuration for new users.
+  * Users who wish to continue running Gazebo Garden and ROS 2 Humble can still do so using the `humble` branch of this repository.
+
+## The VRX Competition
+The VRX environment is also the "virtual venue" for the [VRX Competition](https://github.com/osrf/vrx/wiki). Please see our Wiki for tutorials and links to registration and documentation relevant to the virtual competition.
+
+[![VRX](images/sydney_regatta_gzsim.png)](https://vimeo.com/851696025 "Gazebo Virtual RobotX v. 2.3 - Click to Watch!")
+![ROS 2 CI](https://github.com/osrf/vrx/workflows/ROS%202%20CI/badge.svg)
+
+## Getting Started
+
+ * Watch the [Release 2.3 Highlight Video](https://vimeo.com/851696025).
+ * The [VRX Wiki](https://github.com/osrf/vrx/wiki) provides documentation and tutorials.
+ * The instructions assume a basic familiarity with the ROS environment and Gazebo.  If these tools are new to you, we recommend starting with the excellent [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials)
+ * For technical problems, please use the [project issue tracker](https://github.com/osrf/vrx/issues) to describe your problem or request support.
+
+## Reference
+
+If you use the VRX simulation in your work, please cite our summary publication, [Toward Maritime Robotic Simulation in Gazebo](https://wiki.nps.edu/display/BB/Publications?preview=/1173263776/1173263778/PID6131719.pdf):
+
 ```
-ros2 launch enviro_disturbances launch.py type:={const, osc, mod}
+@InProceedings{bingham19toward,
+  Title                    = {Toward Maritime Robotic Simulation in Gazebo},
+  Author                   = {Brian Bingham and Carlos Aguero and Michael McCarrin and Joseph Klamo and Joshua Malia and Kevin Allen and Tyler Lum and Marshall Rawson and Rumman Waqar},
+  Booktitle                = {Proceedings of MTS/IEEE OCEANS Conference},
+  Year                     = {2019},
+  Address                  = {Seattle, WA},
+  Month                    = {October}
+}
 ```
+## 🛠️ Getting Help and Contributing
 
-For constant current, run:
-```
-ros2 launch enviro_disturbances const.launch.py vel:={velocity, default: 0.3} ang:={angle from x-axis, default: 1.0}
-    t:={time to reach vel, default:1.0} up:={vertical current, default 0}
-```
+VRX is an open source project supported by the community. If you run into issues, need help, or have suggestions:
 
-For oscillating current, run:
-```
-ros2 launch enviro_disturbances osc.launch.py hi:={high velocity for oscillation, default: 0.3} ang:={angle from x-axis in degrees, default: 0}
-    lo:={low velocity for oscillation, default: 0} pd:={period of oscillation, default: 6.0} up:={vertical current, default: 0}
-```
+- 💬 **Ask for help or report bugs** by opening an [issue](https://github.com/osrf/vrx/issues). Please include as much detail as possible, including:
+  - Steps to reproduce the issue
+  - Your system setup (OS, ROS version, etc.)
+  - Relevant error messages or logs
 
-For amplitude-modulated current, run:
-```
-ros2 launch enviro_disturbances mod.launch.py hi:={high velocity for oscillation, default: 0.3} ang:={angle from x-axis in degrees, default: 0}
-    lo:={low velocity for oscillation, default: 0} pd:={period of oscillation, default: 6.0} mod:={amplitude modulation modulus, default: 2.5}
-    up:={vertical current, default: 0}
-```
-```mod``` might be confusing: This is the ratio between the amplitude modulation period and the oscillation period. 
+- 🛠️ **Found a fix or improvement?** We welcome contributions! Submit a [pull request](https://github.com/osrf/vrx/pulls) with your proposed changes.
 
-Velocities are in m/s. 
+- 📫 **Please do not email the maintainers with technical questions.** Using GitHub issues helps ensure that questions and solutions are visible and searchable for the whole community.
 
-Running more than one of these at once causes conflict in `/ocean_current` . Please avoid this!
-***
+Your feedback and participation help make VRX better for everyone — thank you for contributing!
 
-**Glare:** 
----
-In the world .sdf file:  
-Find the directional light block for the sun:  
-```
-   <light type="directional" name="sun">  
-     <cast_shadows>true</cast_shadows>  
-     <pose>5 20 10 0 0 0</pose>  
-     <diffuse>1 0.95 0.9 1</diffuse>  
-     <specular>1 1 1 1</specular>  
-     <!-- Increase ^ the first 3 numbers (up to 1) for stronger glint -->  
-     <attenuation>  
-       <range>1000</range>  
-       <constant>1.0</constant>  
-       <linear>0.00</linear>  
-       <quadratic>0.000</quadratic>  
-     </attenuation>  
-     <direction>-0.4 -0.9 -0.2</direction>  
-     <!-- Set the vector ^ so the sun is at a low angle -->  
-   </light>
-```
-These set the sun at an angle and optionally increase glint from the reflecting sun. The first three numbers in <specular> are RGB values, the fourth value has no effect (transparency).
+## Contributors
 
-In the <scene> block:  
-```
-   <scene>  
-      <sky></sky>  
-      <grid>false</grid>  
-      <ambient>0.12 0.12 0.12</ambient>  
-      <!-- Decrease ^ these ^  for more glare contrast effect  -->  
-      <background>0.6 0.6 0.6</background>  
-   </scene>
-```
-This change makes the shadows more intense, creating the dark glare effect. Like before, the three values are RGB values.
+> [!NOTE]
+> The [Honu Robotics](https://honurobotics.com) team, thanks to the
+> sponsorship of [RoboNation](https://robonation.org/) is currently the
+> maintainer of this repository.
 
-This cannot be changed at runtime. 
+We continue to receive important improvements from the community.  We have done our best to document this on our [Contributors Wiki](https://github.com/osrf/vrx/wiki/Contributors).
 
-**Wind:**  
----
-In the world .sdf file: 
-```
-   <plugin  
-     filename="libUSVWind.so"  
-     name="vrx::USVWind">  
-     <wind_obj>  
-       <name>wamv</name>  
-       <link_name>wamv/base_link</link_name>  
-       <coeff_vector>.5 .5 .33</coeff_vector>  
-     </wind_obj>  
-     <!-- Wind -->  
-     <wind_direction>240</wind_direction>  
-     <!-- in degrees -->  
-     <wind_mean_velocity>5.0</wind_mean_velocity>  
-     <!-- Change the value ^ for wind velocity -->  
-     <var_wind_gain_constants>0</var_wind_gain_constants>  
-     <var_wind_time_constants>2</var_wind_time_constants>  
-     <random_seed>10</random_seed>  
-     <!-- set to zero/empty to randomize -->  
-     <update_rate>10</update_rate>  
-     <topic_wind_speed>/vrx/debug/wind/speed</topic_wind_speed>  
-     <topic_wind_direction>/vrx/debug/wind/direction</topic_wind_direction>  
-   </plugin>
-```
-[VRX exposes](https://github.com/osrf/vrx/wiki/wind_params_tutorial) a bunch of parameters for wind simulation. Change wind direction, velocity, modulation, etc. 
-
-This cannot be changed at runtime. 
-
-**Waves:** 
----
-In the world .sdf file:  
-```
-   <plugin filename="libPublisherPlugin.so" name="vrx::PublisherPlugin">  
-     <message type="gz.msgs.Param" topic="/vrx/wavefield/parameters"  
-              every="2.0">  
-       params {  
-         key: "direction"  
-         value {  
-           type: DOUBLE  
-           double_value: 0.0  
-         }  
-       }  
-       params {  
-         key: "gain"  
-         value {  
-           type: DOUBLE  
-           double_value: 3.0  
-         }  
-       }  
-       params {  
-         key: "period"  
-         value {  
-           type: DOUBLE  
-           double_value: 5  
-         }  
-       }  
-       params {  
-         key: "steepness"  
-         value {  
-           type: DOUBLE  
-           double_value: 0  
-         }  
-       }  
-     </message>  
-   </plugin>
-```
-
-Native [VRX plugin](https://github.com/osrf/vrx/wiki/wave_params_tutorial), Gain controls the height of the waves, period controls the wave period. Direction didn’t really seem to do anything (Could just be me), steepness apparently changes the waves shape.
-
-This cannot be changed at runtime.
-
-**Ocean Current:**  
----
-Add this to wamv_gazebo.urdf.xacro, under the other `<gazebo>` blocks:  
-```
- <gazebo>  
-   <plugin filename="gz-sim-hydrodynamics-system"  
-           name="gz::sim::systems::Hydrodynamics">  
-     <link_name>wamv/base_link</link_name>  
-     <default_current>0.00001 0.0 0.0</default_current>  
-     <!-- /ocean_current topic only works when this is non-zero...?  -->
-
-     <!-- Linear damping, guess values -->  
-     <xU>-2.0</xU>  
-     <yV>-5.0</yV>  
-     <zW>-3.0</zW>  
-     <kP>-1.0</kP>  
-     <mQ>-1.0</mQ>  
-     <nR>-1.0</nR>
-
-     <!-- Quadratic damping -->  
-     <xUabsU>-100.0</xUabsU>  
-     <yVabsV>-100.0</yVabsV>  
-   </plugin>  
- </gazebo>
-```
-
-This plugin uses [Gazebo’s realistic hydrodynamic physics](https://gazebosim.org/api/sim/9/classgz_1_1sim_1_1systems_1_1Hydrodynamics.html) (Scroll down to System Parameters section). You can change the values in `<default_current>`, or with the simulation running enter in the terminal:  
-
-`gz topic -t /ocean_current -m gz.msgs.Vector3d -p 'x: 2.0, y: -0.0, z: 0.0'` 
-
-Change the values in the quotes for desired current velocity in m/s. Don’t set `<default_current>` to `0 0 0` in wamv_gazebo.xacro.urdf, since I found for some reason this causes the above command to lose its effect during simulation. 
-
-Higher damping (drag) coefficients correlates to how strongly the current wants to take the USV with it. Therefore, default values (Zero for all coefficients) results in zero hydrodynamic force on the USV.
-
-Minor pitfall:  Since hydrodynamics isn’t a VRX-bespoke plugin, the hydrodynamic force gets applied to the entire USV mesh rather than just the submersed part of the hull. The difference this produces should be negligible at reasonable current speeds. If realism is necessary to its fullest extent, fine-tuning the damping values may get you close.
-
-Run the topic command during a simulation with a resulting current vector of 200m/s or more for a chuckle 😅
