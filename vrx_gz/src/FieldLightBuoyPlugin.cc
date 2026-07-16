@@ -341,56 +341,56 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         gzmsg << "Initialized UNIFORM environment [HETEROGENEOUS Scenario A: changing left + static right]" << std::endl;
       }
 
-      else if (_environment == "clustered_distrib_env"){
-        GaussianProcessParams gp1;
-        gp1.centerX = -540.0;
-        gp1.centerY = 200.0;
-        gp1.spatialLengthScale = 40.0;
-        gp1.temporalLengthScale = 50.0;
-        gp1.variance = 0.36;
-        gp1.meanValue = 0.6;
-        gp1.noiseStdDev = 0.0; 
-        gp1.meanReversionRate = 0.01;
-        gp1.diffusionCoeff = 0.07;
-        gp1.frozen = false;
-        gp1.updateIntervalSec = 480.0;
-        gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
-        s_sharedGPs.push_back(gp1);
+      // else if (_environment == "clustered_distrib_env"){
+      //   GaussianProcessParams gp1;
+      //   gp1.centerX = -540.0;
+      //   gp1.centerY = 200.0;
+      //   gp1.spatialLengthScale = 40.0;
+      //   gp1.temporalLengthScale = 50.0;
+      //   gp1.variance = 0.36;
+      //   gp1.meanValue = 0.6;
+      //   gp1.noiseStdDev = 0.0; 
+      //   gp1.meanReversionRate = 0.01;
+      //   gp1.diffusionCoeff = 0.07;
+      //   gp1.frozen = false;
+      //   gp1.updateIntervalSec = 480.0;
+      //   gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
+      //   s_sharedGPs.push_back(gp1);
 
-        GaussianProcessParams gp2;
-        gp2.centerX = -390.0;
-        gp2.centerY = 200.0;
-        gp2.spatialLengthScale = 40.0;
-        gp2.temporalLengthScale = 60.0;
-        gp2.variance = 0.36;
-        gp2.meanValue = 0.6;
-        gp2.noiseStdDev = 0.0;
-        gp2.meanReversionRate = 0.01;
-        gp2.diffusionCoeff = 0.07;
-        gp2.frozen = false;
-        gp2.updateIntervalSec = gp2IntervalSec;  // GP2_INTERVAL env var (default 4800)
-        gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
-        s_sharedGPs.push_back(gp2);
+      //   GaussianProcessParams gp2;
+      //   gp2.centerX = -390.0;
+      //   gp2.centerY = 200.0;
+      //   gp2.spatialLengthScale = 40.0;
+      //   gp2.temporalLengthScale = 60.0;
+      //   gp2.variance = 0.36;
+      //   gp2.meanValue = 0.6;
+      //   gp2.noiseStdDev = 0.0;
+      //   gp2.meanReversionRate = 0.01;
+      //   gp2.diffusionCoeff = 0.07;
+      //   gp2.frozen = false;
+      //   gp2.updateIntervalSec = gp2IntervalSec;  // GP2_INTERVAL env var (default 4800)
+      //   gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
+      //   s_sharedGPs.push_back(gp2);
 
-        gzmsg << "Initialized CLUSTERED environment [HETEROGENEOUS: FAST cluster (gp1) + SLOW cluster (gp2)]" << std::endl;
-      }
-      else if (_environment == "boundary_distrib_env"){
-        // Single large GP centered on the buoy field.
-        GaussianProcessParams gp1;
-        gp1.centerX = -448.0;
-        gp1.centerY = 241.0; 
-        gp1.spatialLengthScale = 95.0;
-        gp1.temporalLengthScale = 80.0;
-        gp1.variance = 0.25;
-        gp1.meanValue = 0.6;
-        gp1.noiseStdDev = 0.05;
-        gp1.meanReversionRate = 0.000623;
-        gp1.diffusionCoeff = 0.12;
-        gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
-        s_sharedGPs.push_back(gp1);
+      //   gzmsg << "Initialized CLUSTERED environment [HETEROGENEOUS: FAST cluster (gp1) + SLOW cluster (gp2)]" << std::endl;
+      // }
+      // else if (_environment == "boundary_distrib_env"){
+      //   // Single large GP centered on the buoy field.
+      //   GaussianProcessParams gp1;
+      //   gp1.centerX = -448.0;
+      //   gp1.centerY = 241.0; 
+      //   gp1.spatialLengthScale = 95.0;
+      //   gp1.temporalLengthScale = 80.0;
+      //   gp1.variance = 0.25;
+      //   gp1.meanValue = 0.6;
+      //   gp1.noiseStdDev = 0.05;
+      //   gp1.meanReversionRate = 0.000623;
+      //   gp1.diffusionCoeff = 0.12;
+      //   gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
+      //   s_sharedGPs.push_back(gp1);
 
-        gzmsg << "Initialized BOUNDARY environment with single large GP" << std::endl;
-      }
+      //   gzmsg << "Initialized BOUNDARY environment with single large GP" << std::endl;
+      // }
 
       if (!s_sharedGPs.empty()){
         for (size_t i = 0; i < s_sharedGPs.size(); ++i){
@@ -430,13 +430,15 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
 
   // ===== PER-INSTANCE FIELD TYPE SETUP =====
   if (_environment == "uniform_distrib_env" ||
-      _environment == "clustered_distrib_env" ||
-      _environment == "boundary_distrib_env")
+      // _environment == "clustered_distrib_env" ||
+      // _environment == "boundary_distrib_env")
+  )
   {
     this->fieldType = "gaussian_process";
     this->baseValue = 0.0;
     if (_environment == "uniform_distrib_env" ||
-        _environment == "clustered_distrib_env")
+        // _environment == "clustered_distrib_env")
+    )
       this->buoyColorOffsetStdDev = 0.08;
   }
 
