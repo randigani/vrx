@@ -38,6 +38,8 @@ Find the directional light block for the sun:
 ```
    <light type="directional" name="sun">  
      <cast_shadows>true</cast_shadows>  
+     <intensity>2.5</intensity>
+     <!-- Intensity ^ controls the strength of the light.-->
      <pose>5 20 10 0 0 0</pose>  
      <diffuse>1 0.95 0.9 1</diffuse>  
      <specular>1 1 1 1</specular>  

@@ -330,7 +330,8 @@
 
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
-      <pose>5 20 10 0 0 0</pose>
+      <intensity>2.5</intensity>
+      <pose>0 0 10 0 0 0</pose>
       <diffuse>1 0.95 0.9 1</diffuse>
       <specular>1 1 1 1</specular>
       <!-- Increase ^ These numbers (up to 1) for stronger glint -->
