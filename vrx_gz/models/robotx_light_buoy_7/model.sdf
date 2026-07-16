@@ -49,7 +49,7 @@
           </script>
         </material>
         <plugin name="vrx::FieldLightBuoyPlugin" filename="libFieldLightBuoyPlugin.so">
-          <environment>clustered_distrib_env</environment>
+          <environment>uniform_distrib_env</environment>
           <update_interval>480.0</update_interval>
           <visuals>
             <visual>robotx_light_buoy_7::base_link::panel_1</visual>

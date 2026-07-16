@@ -24,7 +24,7 @@ from vrx_gz.model import Model
 
 
 WEATHERS = ('clear', 'fog', 'night', 'glare')
-ENVS = ('clustered', 'boundary', 'uniform')
+ENVS = ('uniform',)
 
 
 def compose_world(env, weather, world_fallback):
@@ -99,8 +99,8 @@ def generate_launch_description():
                         'otherwise the world is composed from env+weather.'),
         DeclareLaunchArgument(
             'env',
-            default_value='clustered',
-            description='Distribution env: "clustered", "boundary", "uniform", '
+            default_value='uniform',
+            description='Distribution env: "uniform", '
                         'or empty to use `world` directly.'),
         DeclareLaunchArgument(
             'weather',

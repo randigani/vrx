@@ -31,8 +31,8 @@ namespace vrx
   /// approach where buoy colors represent spatially correlated scalar field values
   /// that vary over time.
   ///
-  /// Supports all environments: uniform_distrib_env, clustered_distrib_env,
-  /// boundary_distrib_env. The environment is specified per-buoy in the SDF.
+  /// Supports the uniform_distrib_env environment. The environment is
+  /// specified per-buoy in the SDF.
   ///
   /// SDF Parameters:
   /// <environment>: Environment type (required)
@@ -46,7 +46,7 @@ namespace vrx
   /// The plugin should be inside a <visual> element.
   /// Example:
   ///   <plugin name="vrx::FieldLightBuoyPlugin" filename="libFieldLightBuoyPlugin.so">
-  ///     <environment>clustered_distrib_env</environment>
+  ///     <environment>uniform_distrib_env</environment>
   ///     <update_interval>12.0</update_interval>
   ///     <visuals>
   ///       <visual>robotx_light_buoy::base_link::panel_1</visual>
