@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 
 <sdf version="1.9">
-  <world name="uniform_distrib_env">
+  <world name="uniform_distrib_env_glare">
 
     <physics name="4ms" type="dart">
       <max_step_size>0.004</max_step_size>
