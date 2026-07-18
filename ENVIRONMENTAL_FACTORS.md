@@ -33,7 +33,22 @@ Running more than one of these at once causes conflict in `/ocean_current` . Ple
 
 **Glare:** 
 ---
-In the world .sdf file:  
+**New:** Sun movememt plugin.
+
+In the world .sdf file:
+```
+   <plugin filename="libSunGlareMovementPlugin.so" name = "custom::MovingSun">
+      <light_name>sun</light_name>
+      <solstice>0.0</solstice>
+      <headstart>0.0</headstart>
+      <latitude>40.7128</latitude>
+   </plugin>
+```
+This plugin automatically moves the sun, based on these parameters.
+
+Think of `solstice` as the season value.  Above 0 means closer to summer, 0 means equinox, and below 0 means closer to winter. 
+The value is meant to be between 1 and -1.
+
 Find the directional light block for the sun:  
 ```
    <light type="directional" name="sun">  
@@ -67,8 +82,6 @@ In the <scene> block:
    </scene>
 ```
 This change makes the shadows more intense, creating the dark glare effect. Like before, the three values are RGB values.
-
-This cannot be changed at runtime. 
 
 **Wind:**  
 ---
