@@ -16,7 +16,7 @@ using namespace custom;
 
 constexpr double tilt_rad = 23.44 * M_PI / 180;
 // constexpr double lat_rad = 40.7128 * M_PI / 180; // NYC latitude
-constexpr int half_d = 432;
+constexpr int half_d = 43200;
 constexpr double recreateInterval = 3.0;
 
 
@@ -74,7 +74,7 @@ void MovingSun::PreUpdate(const gz::sim::UpdateInfo &_info,
 
         double decl_rad = solstice * tilt_rad;
 
-        double hour_angle = (M_PI * ((t + s_headstart) - (half_d / 2))) / half_d;
+        double hour_angle = M_PI * ((t + s_headstart) - (half_d / 2)) / half_d;
 
         double sin_elev = (sin(lat_rad) * sin(decl_rad)) + (cos(lat_rad) * cos(decl_rad) * cos(hour_angle));
         double elev = asin(sin_elev);
@@ -86,6 +86,8 @@ void MovingSun::PreUpdate(const gz::sim::UpdateInfo &_info,
         if (hour_angle > 0.0) {
             azimuth = (2.0 * M_PI) - azimuth;
         }
+
+        if (elev < 0){elev = 0;}
 
         // x' = cos(pi * t / 43200), y' = sin(pi * t / 43200)
 
