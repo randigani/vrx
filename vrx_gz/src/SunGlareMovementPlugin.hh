@@ -7,27 +7,35 @@
 #include <gz/sim/System.hh>
 #include <gz/sim/Entity.hh>
 
+namespace custom{
 
-class MovingSun : 
-    public gz::sim::System,
-    public gz::sim::ISystemConfigure,
-    public gz::sim::ISystemPreUpdate
-{
-    public:
-        void Configure(const gz::sim::Entity &_entity,
-              const std::shared_ptr<const sdf::Element> &_sdf,
-              gz::sim::EntityComponentManager &_ecm,
-              gz::sim::EventManager &_eventMgr) override;
+    class MovingSun : 
+        public gz::sim::System,
+        public gz::sim::ISystemConfigure,
+        public gz::sim::ISystemPreUpdate
+    {
+        public:
+            void Configure(const gz::sim::Entity &_entity,
+                const std::shared_ptr<const sdf::Element> &_sdf,
+                gz::sim::EntityComponentManager &_ecm,
+                gz::sim::EventManager &_eventMgr) override;
 
-        void PreUpdate(const gz::sim::UpdateInfo &_info,
-              gz::sim::EntityComponentManager &_ecm) override;
+            void PreUpdate(const gz::sim::UpdateInfo &_info,
+                gz::sim::EntityComponentManager &_ecm) override;
 
-    private:
-        
-        gz::sim::Entity lightEntity{gz::sim::kNullEntity};
-        std::string lightName{"sun"};
+        private:
+            
+            gz::sim::Entity lightEntity{gz::sim::kNullEntity};
+            std::string lightName;
 
-};
+            double s_headstart;
+            double solstice;    // -1 ~ 1. Changes max sun height +/- 23.5 degrees. s
+            double lat_rad;
+            double lastRecreateTime = -1000.0;
+
+
+    };
+}
 
 
 #endif

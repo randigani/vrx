@@ -76,6 +76,18 @@ install(
   DESTINATION lib)
 
 
+add_library(SunGlareMovementPlugin SHARED
+  src/SunGlareMovementPlugin.cc
+)
+target_link_libraries(SunGlareMovementPlugin PUBLIC
+  gz-common${GZ_COMMON_VER}::gz-common${GZ_COMMON_VER}
+  gz-sim${GZ_SIM_VER}::core
+  gz-math${GZ_MATH_VER}
+)
+install(
+  TARGETS SunGlareMovementPlugin
+  DESTINATION lib)
+
 # Base scoring plugin
 add_library(ScoringPlugin SHARED
   src/ScoringPlugin.cc
@@ -148,14 +160,7 @@ target_link_libraries(AcousticTrackingScoringPlugin PUBLIC
 install(
   TARGETS AcousticTrackingScoringPlugin
   DESTINATION lib)
-# add_library(SunGlareMovementPlugin SHARED
-#   src/SunGlareMovementPlugin.cc
-# )
-# target_link_libraries(SunGlareMovementPlugin 
-#   gz-common${GZ_COMMON_VER}::gz-common${GZ_COMMON_VER}
-#   gz-sim${GZ_SIM_VER}::core
-#   gz-math${GZ_MATH_VER}
-# )
+
 # Plugins
 list(APPEND VRX_GZ_PLUGINS
   AcousticPingerPlugin

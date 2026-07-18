@@ -341,9 +341,16 @@
         <linear>0.00</linear>
         <quadratic>0.000</quadratic>
       </attenuation>
-      <direction>-0.4 -0.9 -0.2</direction>
+      <direction>0 0 -1</direction>
       <!-- Set the vector ^ so the sun is at a low angle -->
     </light>
+
+    <plugin filename="libSunGlareMovementPlugin.so" name = "custom::MovingSun">
+      <light_name>sun</light_name>
+      <solstice>0.0</solstice>
+      <headstart>0.0</headstart>
+      <latitude>40.7128</latitude>
+    </plugin>
 
     <!-- <include>
       <pose> 0 0 0.2 0 0 0 </pose>
