@@ -16,7 +16,6 @@ using namespace custom;
 
 constexpr double tilt_rad = 23.44 * M_PI / 180;
 // constexpr double lat_rad = 40.7128 * M_PI / 180; // NYC latitude
-constexpr int half_d = 43200;
 constexpr double recreateInterval = 3.0;
 
 
@@ -30,6 +29,39 @@ void MovingSun::Configure(const gz::sim::Entity &_entity,
         solstice = _sdf->Get<double>("solstice", 0).first;
         lightName = _sdf->Get<std::string>("light_name", "sun").first;
         lat_rad = (_sdf->Get<double>("latitude", 40.7128).first) * M_PI / 180;
+
+        half_d = [&_sdf](){
+            uint rv = 43200;
+
+            if (const char *_env_var = std::getenv("SUN_CYCLE_PERIOD")){
+                try {
+                    rv = static_cast<uint32_t>(std::stoul(_env_var));
+                    gzmsg << "SunGlareMovementPlugin: Using env variable SUN_CYCLE_PERIOD=" << rv << "\n";
+
+                } catch (const std::exception &e){
+                    gzwarn << "FieldLightBuoyPlugin: SUN_CYCLE_PERIOD env var '" << _env_var
+                        << "' is not a valid uint (" << e.what() << ")\n";
+                }
+
+            } else if (_sdf->HasElement("sun_cycle_period")){
+                rv = _sdf->Get<uint>("sun_cycle_period", rv).first;
+                gzmsg << "SunGlareMovementPlugin: Using SDF (or SDF default) rise_set_period=" << rv << "\n";
+            
+            } else {
+                gzmsg << "sun_cycle_period was not provided in sdf, nor was it found as an env var. Setting default value: "
+                    << rv << "\n";
+            }
+
+            if (rv < 3){
+                rv = 43200;
+                gzwarn << "sun_cycle_period can't be less than 3s! Setting default value: " << rv << "\n";
+            } else if (rv < 30){
+                gzwarn << "sun_cycle_period is very short (less than 30 secs): " << rv
+                    << ". Accepting, but simulation might look ridiculous!\n";
+            }
+
+            return static_cast<double>(rv);
+        }();
 
     }
 

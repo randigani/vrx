@@ -31,9 +31,9 @@ namespace custom{
             double s_headstart;
             double solstice;    // -1 ~ 1. Changes max sun height +/- 23.5 degrees. s
             double lat_rad;
+            double half_d;
+
             double lastRecreateTime = -1000.0;
-
-
     };
 }
 
