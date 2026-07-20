@@ -356,7 +356,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
       // Create Gazebo transport publisher (once)
       if (!s_ownershipDetermined && !s_sharedGPs.empty()){
         std::vector<gz::transport::MessagePublisher> pubs;
-        s_transportNode.TopicInfo("/buoy_visual_colors", pubs);
+        // s_transportNode.TopicInfo("/buoy_visual_colors", pubs);
 
         if (pubs.empty()){
           s_gpPub = s_transportNode.Advertise<gz::msgs::StringMsg>("/gp_field_state");

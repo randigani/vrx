@@ -350,6 +350,7 @@
       <solstice>0.0</solstice>
       <headstart>0.0</headstart>
       <latitude>40.7128</latitude>
+      <sun_cycle_period>4320</sun_cycle_period>
     </plugin>
 
     <!-- <include>

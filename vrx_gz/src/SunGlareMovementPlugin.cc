@@ -39,24 +39,24 @@ void MovingSun::Configure(const gz::sim::Entity &_entity,
                     gzmsg << "SunGlareMovementPlugin: Using env variable SUN_CYCLE_PERIOD=" << rv << "\n";
 
                 } catch (const std::exception &e){
-                    gzwarn << "FieldLightBuoyPlugin: SUN_CYCLE_PERIOD env var '" << _env_var
+                    gzwarn << "SunGlareMovementPlugin: SUN_CYCLE_PERIOD env var '" << _env_var
                         << "' is not a valid uint (" << e.what() << ")\n";
                 }
 
             } else if (_sdf->HasElement("sun_cycle_period")){
                 rv = _sdf->Get<uint>("sun_cycle_period", rv).first;
-                gzmsg << "SunGlareMovementPlugin: Using SDF (or SDF default) rise_set_period=" << rv << "\n";
+                gzmsg << "SunGlareMovementPlugin: Using SDF (or SDF default) sun_cycle_period=" << rv << "\n";
             
             } else {
-                gzmsg << "sun_cycle_period was not provided in sdf, nor was it found as an env var. Setting default value: "
+                gzmsg << "SunGlareMovementPlugin: sun_cycle_period was not provided in sdf, nor was it found as an env var. Setting default value: "
                     << rv << "\n";
             }
 
             if (rv < 3){
                 rv = 43200;
-                gzwarn << "sun_cycle_period can't be less than 3s! Setting default value: " << rv << "\n";
+                gzwarn << "SunGlareMovementPlugin: sun_cycle_period can't be less than 3s! Setting default value: " << rv << "\n";
             } else if (rv < 30){
-                gzwarn << "sun_cycle_period is very short (less than 30 secs): " << rv
+                gzwarn << "SunGlareMovementPlugin: sun_cycle_period is very short (less than 30 secs): " << rv
                     << ". Accepting, but simulation might look ridiculous!\n";
             }
 
