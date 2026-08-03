@@ -9,6 +9,9 @@
 #include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 #include <gz/sim/components/CastShadows.hh>
+#include <gz/sim/components/Visual.hh>
+#include <gz/sim/components/Material.hh>
+#include <gz/sim/Model.hh>
 #include <gz/sim/Util.hh>
 #include <sdf/Light.hh>
 
@@ -157,6 +160,15 @@ void MovingSun::PreUpdate(const gz::sim::UpdateInfo &_info,
         _ecm.CreateComponent(newEntity, gz::sim::components::CastShadows(castShadows));
 
         this->lightEntity = newEntity;
+
+        // Extension to SunGlareMovement: Add a massive color filter sphere in front of the skybox, so when the sun lowers it looks like evening and night.
+        // The filter color should depend on the sun's elevation. 
+        // Sun above 12 degrees: Normal
+        // Sun above 6 degrees: Subtle yellowish
+        // Sun above 0 degrees: Yellow-orange
+        // Sun above -4 degrees: Orange-red
+        // Sun below -6 degrees: Dark blue
+        // Sun below -12 degrees: Black 
 
     }
 
