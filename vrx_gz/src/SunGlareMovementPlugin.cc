@@ -20,7 +20,44 @@ using namespace custom;
 constexpr double tilt_rad = 23.44 * M_PI / 180;
 // constexpr double lat_rad = 40.7128 * M_PI / 180; // NYC latitude
 constexpr double recreateInterval = 3.0;
+constexpr double skyFilterRadius = 9000.0;
 
+namespace{
+    struct skycolors{double elev_deg; gz::math::Color skyColor;};
+
+    const std::vector<skycolors> kSkyColorVals = {
+        {12.0,  gz::math::Color(1.00, 1.00, 1.00, 0.00)},  // normal
+        { 6.0,  gz::math::Color(1.00, 0.95, 0.80, 0.15)},  // subtle yellowish
+        { 0.0,  gz::math::Color(1.00, 0.75, 0.30, 0.30)},  // yellow-orange
+        {-4.0,  gz::math::Color(1.00, 0.45, 0.25, 0.40)},  // orange-red
+        {-6.0,  gz::math::Color(0.05, 0.05, 0.20, 0.55)},  // dark blue
+        {-12.0, gz::math::Color(0.00, 0.00, 0.00, 0.85)},  // black
+    };
+
+    gz::math::Color SkyColorForElevationDeg(double _elevDeg){
+        if (_elevDeg >= kSkyColorVals.front().elev_deg)
+        return kSkyColorVals.front().skyColor;
+        if (_elevDeg <= kSkyColorVals.back().elev_deg)
+        return kSkyColorVals.back().skyColor;
+    
+        for (size_t i = 0; i + 1 < kSkyColorVals.size(); ++i){
+            const auto &hi = kSkyColorVals[i];
+            const auto &lo = kSkyColorVals[i + 1];
+            if (_elevDeg <= hi.elev_deg && _elevDeg >= lo.elev_deg)
+            {
+                double span = hi.elev_deg - lo.elev_deg;
+                double t = span > 1e-6 ? (hi.elev_deg - _elevDeg) / span : 0.0;
+                return gz::math::Color(
+                    hi.skyColor.R() + t * (lo.skyColor.R() - hi.skyColor.R()),
+                    hi.skyColor.G() + t * (lo.skyColor.G() - hi.skyColor.G()),
+                    hi.skyColor.B() + t * (lo.skyColor.B() - hi.skyColor.B()),
+                    hi.skyColor.A() + t * (lo.skyColor.A() - hi.skyColor.A()));
+            }
+        }
+        return kSkyColorVals.back().skyColor;  // unreachable, just a safeguard
+    }
+
+}
 
 void MovingSun::Configure(const gz::sim::Entity &_entity,
               const std::shared_ptr<const sdf::Element> &_sdf,
@@ -65,6 +102,8 @@ void MovingSun::Configure(const gz::sim::Entity &_entity,
 
             return static_cast<double>(rv);
         }();
+
+        
 
     }
 
