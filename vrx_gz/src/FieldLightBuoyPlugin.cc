@@ -340,6 +340,24 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
 
         gzmsg << "Initialized UNIFORM environment [HETEROGENEOUS Scenario A: changing left + static right]" << std::endl;
       }
+      else if (_environment == "boundary_distrib_env"){
+        // Single large GP centered on the buoy field.
+        GaussianProcessParams gp1;
+        gp1.centerX = -448.0;
+        gp1.centerY = 241.0;
+        gp1.spatialLengthScale = 95.0;
+        gp1.temporalLengthScale = 80.0;
+        gp1.variance = 0.25;
+        gp1.meanValue = 0.6;
+        gp1.noiseStdDev = 0.05;
+        gp1.meanReversionRate = 0.000623;
+        gp1.diffusionCoeff = 0.12;
+        gp1.updateIntervalSec = 480.0;
+        gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
+        s_sharedGPs.push_back(gp1);
+
+        gzmsg << "Initialized BOUNDARY environment with single large GP" << std::endl;
+      }
 
       if (!s_sharedGPs.empty()){
         for (size_t i = 0; i < s_sharedGPs.size(); ++i){
@@ -378,7 +396,8 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
   }
 
   // ===== PER-INSTANCE FIELD TYPE SETUP =====
-  if (_environment == "uniform_distrib_env")
+  if (_environment == "uniform_distrib_env" ||
+      _environment == "boundary_distrib_env")
   {
     this->fieldType = "gaussian_process";
     this->baseValue = 0.0;
