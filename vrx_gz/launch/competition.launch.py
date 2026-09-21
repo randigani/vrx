@@ -24,7 +24,7 @@ from vrx_gz.model import Model
 
 
 WEATHERS = ('clear', 'fog', 'night', 'glare')
-ENVS = ('uniform',)
+ENVS = ('uniform', 'dense')
 
 
 def compose_world(env, weather, world_fallback):
