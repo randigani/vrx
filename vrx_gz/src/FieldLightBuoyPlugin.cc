@@ -374,6 +374,40 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
         s_sharedGPs.push_back(gp2);
         gzmsg << "Initialized DENSE environment [uniform x0.6: changing left + static right]" << std::endl;
       }
+      else if (_environment == "dense08_distrib_env"){
+        // uniform_distrib_env scaled x0.8 about the buoy-field centroid (-453.3, 231.0),
+        // 2026-09-21: centres and spatial length scales scale with the grid so every buoy
+        // sees the same field statistics as in the uniform world. Nothing else changes.
+        GaussianProcessParams gp1;   // CHANGING (left region)
+        gp1.centerX = -500.3;
+        gp1.centerY = 231.0;
+        gp1.spatialLengthScale = 28.0;
+        gp1.temporalLengthScale = 60.0;
+        gp1.variance = 0.4;
+        gp1.meanValue = 0.55;
+        gp1.noiseStdDev = 0.0;
+        gp1.meanReversionRate = 0.01;
+        gp1.diffusionCoeff = 0.07;
+        gp1.frozen = false;
+        gp1.updateIntervalSec = 480.0;
+        gp1.currentAmplitude = SharedSampleGaussian(gp1.meanValue, std::sqrt(gp1.variance));
+        s_sharedGPs.push_back(gp1);
+        GaussianProcessParams gp2;   // STATIC (right region)
+        gp2.centerX = -410.7;
+        gp2.centerY = 231.0;
+        gp2.spatialLengthScale = 28.0;
+        gp2.temporalLengthScale = 80.0;
+        gp2.variance = 0.4;
+        gp2.meanValue = 0.75;
+        gp2.noiseStdDev = 0.0;
+        gp2.meanReversionRate = 0.01;
+        gp2.diffusionCoeff = 0.07;
+        gp2.frozen = false;
+        gp2.updateIntervalSec = gp2IntervalSec;
+        gp2.currentAmplitude = SharedSampleGaussian(gp2.meanValue, std::sqrt(gp2.variance));
+        s_sharedGPs.push_back(gp2);
+        gzmsg << "Initialized DENSE08 environment [uniform x0.8: changing left + static right]" << std::endl;
+      }
       else if (_environment == "boundary_distrib_env"){
         // Single large GP centered on the buoy field.
         GaussianProcessParams gp1;
@@ -432,6 +466,7 @@ void FieldLightBuoyPlugin::Implementation::InitializeField(
   // ===== PER-INSTANCE FIELD TYPE SETUP =====
   if (_environment == "uniform_distrib_env" ||
       _environment == "dense_distrib_env" ||
+      _environment == "dense08_distrib_env" ||
       _environment == "boundary_distrib_env")
   {
     this->fieldType = "gaussian_process";
